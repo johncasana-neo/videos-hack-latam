@@ -1,0 +1,151 @@
+{
+  "video_id": "radiografia-20260517-example-mtc",
+  "generated_at": "2026-05-17T03:00:00-05:00",
+  "series": {
+    "name": "Radiografia del Gasto Publico",
+    "project": "Agente P : Operaciones Glitch",
+    "episode_number": 1,
+    "episode_label": "01/30"
+  },
+  "case": {
+    "caso_titulo": "Un solo postor por S/ 47,850,000",
+    "patron_detectado": "postor_unico_con_proceso_acelerado",
+    "confidence": 0.91,
+    "severity": 9,
+    "red_flags": [
+      {
+        "tipo": "postor_unico",
+        "severity": 9,
+        "patron_id": "postor_unico_con_proceso_acelerado",
+        "evidencia": {
+          "numero_postores": 1,
+          "dias_proceso": 18,
+          "promedio_sector": 45,
+          "codigo_seace": "MTC-2026-Cusco-Quillabamba-001"
+        }
+      }
+    ]
+  },
+  "source": {
+    "entidad_nombre": "Ministerio de Transportes y Comunicaciones",
+    "entidad_sigla": "MTC",
+    "entidad_ruc": "20131379944",
+    "codigo_seace": "MTC-2026-Cusco-Quillabamba-001",
+    "fuente_oficial": "SEACE",
+    "raw_data_points": {
+      "codigo_seace": "MTC-2026-Cusco-Quillabamba-001",
+      "entidad": "Ministerio de Transportes y Comunicaciones",
+      "ruc_entidad": "20131379944",
+      "objeto": "Mejoramiento y conservacion de la ruta Cusco - Quillabamba",
+      "monto_referencial": 47850000,
+      "monto_adjudicado": 47850000,
+      "fecha_convocatoria": "2026-04-12",
+      "fecha_adjudicacion": "2026-04-30",
+      "numero_postores": 1,
+      "postores": [
+        "20600123987"
+      ],
+      "fuente_oficial": "SEACE"
+    }
+  },
+  "contract": {
+    "objeto_contrato": "Mejoramiento y conservacion de la ruta Cusco - Quillabamba",
+    "monto_adjudicado": 47850000,
+    "numero_postores": 1,
+    "dias_proceso": 18,
+    "promedio_sector": 45
+  },
+  "script": {
+    "voiceover_text_full": "Radiografia del gasto publico. Hoy miramos un contrato del MTC por cuarenta y siete millones ochocientos cincuenta mil soles para la ruta Cusco Quillabamba. La alerta: solo hubo un postor, y el proceso duro dieciocho dias, frente a un promedio sectorial de cuarenta y cinco. No es sentencia, es una red flag con datos publicos. Fuente: SEACE.",
+    "segments": [
+      {
+        "start": 0,
+        "end": 2,
+        "label": "intro",
+        "text": "Un solo postor por S/ 47,850,000"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "label": "monto",
+        "text": "S/ 47,850,000"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "label": "postores",
+        "text": "1 postor"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "label": "tiempo",
+        "text": "18 dias"
+      },
+      {
+        "start": 5,
+        "end": 10,
+        "label": "contexto",
+        "text": "MTC - ruta Cusco Quillabamba"
+      },
+      {
+        "start": 10,
+        "end": 14,
+        "label": "comparativa",
+        "text": "18 dias vs 45 dias"
+      },
+      {
+        "start": 14,
+        "end": 17,
+        "label": "punch",
+        "text": "Un solo postor. La mitad del tiempo. Millones en juego."
+      },
+      {
+        "start": 17,
+        "end": 20,
+        "label": "cta",
+        "text": "Sigueme"
+      }
+    ]
+  },
+  "global_style": {
+    "background": "#0A1628",
+    "grid": "#1E3A5F",
+    "positive": "#4ADE80",
+    "alert": "#EF4444",
+    "warning": "#FBBF24",
+    "main_text": "#FFFFFF",
+    "cta": "#F472B6"
+  },
+  "audio": {
+    "provider": "MiniMax",
+    "model": "speech-2.6-hd",
+    "voice_id": "Spanish_SeriousMan",
+    "language_boost": "Spanish",
+    "speed": 1.05,
+    "pitch": -1,
+    "emotion": "neutral"
+  },
+  "subtitles": {
+    "engine": "whisper",
+    "granularity": "word-level",
+    "karaoke": true
+  },
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_seconds": 20
+  },
+  "metadata": {
+    "title": "Un solo postor por S/ 47,850,000",
+    "description": "Caso MTC de referencia para Radiografia del Gasto Publico. Analisis de datos publicos de SEACE sobre la ruta Cusco - Quillabamba.",
+    "hashtags": [
+      "#AgenteP",
+      "#GastoPublico",
+      "#ContratacionesPublicas",
+      "#Peru",
+      "#DatosPublicos"
+    ]
+  }
+}

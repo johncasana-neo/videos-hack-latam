@@ -6,7 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       modo_test:
-        description: "Skip Buffer publishing"
+        description: "Skip Instagram publishing"
+        type: boolean
+        default: false
+      usar_ejemplo:
+        description: "Use example insight JSON instead of scraping"
         type: boolean
         default: false
 
@@ -64,7 +68,11 @@ jobs:
           mkdir -p insights
           echo "date=${today}" >> "$GITHUB_OUTPUT"
           echo "path=${path}" >> "$GITHUB_OUTPUT"
-          if python insights_app/main.py --output "$path"; then
+          if [ "${{ github.event.inputs.usar_ejemplo }}" = "true" ]; then
+            cp insights/insight_example_mtc.json "$path"
+            echo "no_cases=false" >> "$GITHUB_OUTPUT"
+            echo "Using example insight JSON."
+          elif python insights_app/main.py --output "$path"; then
             echo "no_cases=false" >> "$GITHUB_OUTPUT"
           else
             code=$?

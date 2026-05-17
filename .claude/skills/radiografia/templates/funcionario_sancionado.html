@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="es" data-composition-id="radiografia-funcionario-sancionado" data-width="1080" data-height="1920" data-fps="30" data-duration="{{ audio_duration }}">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1080, height=1920" />
   <title>{{ caso_titulo }}</title>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@600;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
   <style>
     :root { --bg:#0A1628; --grid:#1E3A5F; --green:#4ADE80; --red:#EF4444; --yellow:#FBBF24; --white:#FFFFFF; --pink:#F472B6; --black:#000000; }
-    * { box-sizing:border-box; }
-    body { margin:0; width:1080px; height:1920px; overflow:hidden; color:var(--white); font-family:"Inter","Anthropic Sans",Arial,sans-serif; background:radial-gradient(circle at center,rgba(255,255,255,.06),rgba(10,22,40,.96) 64%,#050914 100%),linear-gradient(var(--grid) 2px,transparent 2px),linear-gradient(90deg,var(--grid) 2px,transparent 2px),var(--bg); background-size:auto,60px 60px,60px 60px,auto; }
-    main { position:relative; width:1080px; height:1920px; overflow:hidden; }
-    .frame { position:absolute; inset:0; padding:104px 78px; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html, body { width:1080px; height:1920px; overflow:hidden; color:var(--white); font-family:"Inter",Arial,sans-serif; background:radial-gradient(circle at center,rgba(255,255,255,.06),rgba(10,22,40,.96) 64%,#050914 100%),linear-gradient(var(--grid) 2px,transparent 2px),linear-gradient(90deg,var(--grid) 2px,transparent 2px),var(--bg); background-size:auto,60px 60px,60px 60px,auto; }
+    #root { position:relative; width:1080px; height:1920px; overflow:hidden; }
+    .scene { position:absolute; inset:0; padding:104px 78px; opacity:0; }
     .title { font-family:"Bangers",Impact,sans-serif; font-size:126px; line-height:.92; text-transform:uppercase; -webkit-text-stroke:3px var(--black); text-shadow:8px 8px 0 var(--black); }
     .episode { color:var(--yellow); font-size:54px; font-weight:900; margin-bottom:28px; }
     .case { margin-top:42px; font-size:60px; line-height:1.04; font-weight:900; }
@@ -32,30 +33,90 @@
     .cta { position:absolute; left:0; right:0; top:620px; text-align:center; font-family:"Bangers",Impact,sans-serif; font-size:156px; color:var(--pink); -webkit-text-stroke:4px var(--black); text-shadow:10px 10px 0 var(--black); }
     .footer { position:absolute; left:78px; right:78px; bottom:92px; display:flex; justify-content:space-between; align-items:flex-end; gap:24px; font-size:34px; font-weight:900; }
     .small { font-size:28px; color:rgba(255,255,255,.82); }
-    .karaoke { position:absolute; left:80px; right:80px; top:1248px; min-height:210px; text-align:center; font-size:72px; line-height:1.06; font-weight:600; text-shadow:5px 5px 0 var(--black); }
+    .karaoke { position:absolute; left:80px; right:80px; top:1248px; min-height:210px; text-align:center; font-size:72px; line-height:1.06; font-weight:600; text-shadow:5px 5px 0 var(--black); opacity:0; }
     .karaoke strong { color:var(--yellow); }
-    .hide { opacity:0; }
   </style>
 </head>
 <body>
-  <main id="radiografia-funcionario-sancionado" data-composition-id="radiografia-funcionario-sancionado" data-width="1080" data-height="1920" data-fps="30" data-start="0" data-duration="{{ audio_duration }}">
-  <audio id="voiceover" src="assets/voiceover.mp3" data-start="0" data-track-index="2"></audio>
-  <section id="scene-intro" class="frame clip" data-scene="intro" data-start="0" data-duration="2"><div class="episode">EPISODIO {{ episode_label }}</div><div class="title">Radiografia<br />del gasto publico</div><div class="case">{{ caso_titulo }}</div></section>
-  <section id="scene-facts" class="frame clip hide" data-scene="facts" data-start="2" data-duration="3"><div class="pill">FUNCIONARIO SANCIONADO</div><div class="facts"><div class="fact"><b>{{ monto_adjudicado_formato }}</b><span>monto bajo revision</span></div><div class="fact"><b>{{ numero_postores }}</b><span>postores reportados</span></div><div class="fact"><b>{{ dias_proceso }} dias</b><span>proceso contractual</span></div></div></section>
-  <section id="scene-context" class="frame clip hide" data-scene="context" data-start="5" data-duration="5"><div class="context"><div class="entity">{{ entidad_sigla }} - {{ entidad_nombre }}</div><div class="small">RUC {{ entidad_ruc_censurado }} | Codigo SEACE {{ codigo_seace }}</div><div class="object">{{ objeto_contrato }}</div></div></section>
-  <section id="scene-compare" class="frame clip hide" data-scene="compare" data-start="10" data-duration="4"><div class="title" style="font-size:84px">Cruce de<br />fechas</div><div class="card"><div class="badge">INHABILITADO</div><div class="id">DNI ***{{ funcionario_dni_ultimos|default("123") }}</div><div class="dates"><div class="datebox">Sancion<br /><b>{{ sancion_fecha|default("vigente") }}</b></div><div class="datebox">Firma contrato<br /><b>{{ firma_fecha|default("posterior") }}</b></div></div></div></section>
-  <section id="scene-punch" class="frame clip hide" data-scene="punch" data-start="14" data-duration="3"><div class="punch" data-typewriter>La pregunta clave: podia firmar ese contrato?</div></section>
-  <section id="scene-cta" class="frame clip hide" data-scene="cta" data-start="17" data-duration="3"><div class="cta">SIGUEME ↑</div><div class="footer"><div>@agente_p<br /><span class="small">Episodio {{ episode_label }}</span></div><div class="small">Datos publicos · Fuente: {{ fuente_oficial }}</div></div></section>
-  <div class="karaoke" data-karaoke><span>Cuando una sancion esta vigente,</span> <strong>las fechas importan</strong></div>
-  </main>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="{{ audio_duration }}" data-width="1080" data-height="1920">
+    <audio id="voiceover" src="assets/voiceover.mp3" data-start="0" data-track-index="2"></audio>
+
+    <div id="scene-intro" class="scene">
+      <div class="episode">EPISODIO {{ episode_label }}</div>
+      <div class="title">Radiografia<br />del gasto publico</div>
+      <div class="case">{{ caso_titulo }}</div>
+    </div>
+
+    <div id="scene-facts" class="scene">
+      <div class="pill">FUNCIONARIO SANCIONADO</div>
+      <div class="facts">
+        <div class="fact"><b>{{ monto_adjudicado_formato }}</b><span>monto bajo revision</span></div>
+        <div class="fact"><b>{{ numero_postores }}</b><span>postores reportados</span></div>
+        <div class="fact"><b>{{ dias_proceso }} dias</b><span>proceso contractual</span></div>
+      </div>
+    </div>
+
+    <div id="scene-context" class="scene">
+      <div class="context">
+        <div class="entity">{{ entidad_sigla }} - {{ entidad_nombre }}</div>
+        <div class="small">RUC {{ entidad_ruc_censurado }} | Codigo SEACE {{ codigo_seace }}</div>
+        <div class="object">{{ objeto_contrato }}</div>
+      </div>
+    </div>
+
+    <div id="scene-compare" class="scene">
+      <div class="title" style="font-size:84px">Cruce de<br />fechas</div>
+      <div class="card">
+        <div class="badge">INHABILITADO</div>
+        <div class="id">DNI ***{{ funcionario_dni_ultimos }}</div>
+        <div class="dates">
+          <div class="datebox">Sancion<br /><b>{{ sancion_fecha }}</b></div>
+          <div class="datebox">Firma contrato<br /><b>{{ firma_fecha }}</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="scene-punch" class="scene">
+      <div class="punch">La pregunta clave: podia firmar ese contrato?</div>
+    </div>
+
+    <div id="scene-cta" class="scene">
+      <div class="cta">SIGUEME ↑</div>
+      <div class="footer">
+        <div>@agente_p<br /><span class="small">Episodio {{ episode_label }}</span></div>
+        <div class="small">Datos publicos · Fuente: {{ fuente_oficial }}</div>
+      </div>
+    </div>
+
+    <div id="karaoke" class="karaoke">
+      <span>Cuando una sancion esta vigente,</span> <strong>las fechas importan</strong>
+    </div>
+  </div>
+
   <script>
     window.__timelines = window.__timelines || {};
-    const compositionId = "radiografia-funcionario-sancionado";
-    const master = gsap.timeline({ id: compositionId, paused: true });
-    const scale = (Number("{{ audio_duration }}") || 20) / 20;
-    gsap.utils.toArray("[data-scene]").forEach((scene) => { const start=Number(scene.dataset.start)*scale; const end=start+(Number(scene.dataset.duration)*scale); const tl=gsap.timeline({ id:scene.dataset.scene, paused:true }); tl.set(scene,{opacity:1},start).fromTo(scene.children,{y:44,opacity:0,scale:.96},{y:0,opacity:1,scale:1,stagger:.08,duration:.45,ease:"back.out(1.7)"},start).to(scene,{opacity:0,duration:.18},end-.18); master.add(tl,0); });
-    const card = gsap.timeline({ id:"sanction-card", paused:true }); card.fromTo(".badge",{scale:1.8,rotation:-16,opacity:0},{scale:1,rotation:-4,opacity:1,duration:.4,ease:"back.out(2)"},10*scale).fromTo(".datebox",{y:50,opacity:0},{y:0,opacity:1,stagger:.12,duration:.35},10.35*scale); master.add(card,0); window.__timelines[compositionId] = master;
+    const audioDuration = Number("{{ audio_duration }}") || 20;
+    const scale = audioDuration / 20;
+    const tl = gsap.timeline({ paused: true });
+
+    function showScene(id, start, duration) {
+      tl.to(id, { opacity: 1, duration: 0.4, ease: "power2.out" }, start * scale);
+      tl.to(id, { opacity: 0, duration: 0.3, ease: "power2.in" }, (start + duration - 0.3) * scale);
+    }
+
+    showScene("#scene-intro", 0, 2);
+    showScene("#scene-facts", 2, 3);
+    tl.from("#scene-facts .fact", { y: 60, opacity: 0, stagger: 0.15, duration: 0.5, ease: "back.out(1.7)" }, 2.2 * scale);
+    showScene("#scene-context", 5, 5);
+    showScene("#scene-compare", 10, 4);
+    tl.from(".badge", { scale: 1.8, rotation: -16, opacity: 0, duration: 0.5, ease: "back.out(2)" }, 10.3 * scale);
+    tl.from(".datebox", { y: 60, opacity: 0, stagger: 0.15, duration: 0.4 }, 10.7 * scale);
+    showScene("#scene-punch", 14, 3);
+    showScene("#scene-cta", 17, 3);
+    tl.to("#karaoke", { opacity: 1, duration: 0.5 }, 1 * scale);
+    tl.to("#karaoke", { opacity: 0, duration: 0.5 }, 17 * scale);
+
+    window.__timelines["main"] = tl;
   </script>
 </body>
 </html>

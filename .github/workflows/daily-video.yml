@@ -13,6 +13,10 @@ on:
         description: "Use example insight JSON instead of scraping"
         type: boolean
         default: false
+      skip_audio:
+        description: "Skip MiniMax TTS, use silent placeholder"
+        type: boolean
+        default: false
 
 env:
   PYTHONPATH: ${{ github.workspace }}
@@ -99,12 +103,19 @@ jobs:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_GROUP_ID: ${{ secrets.MINIMAX_GROUP_ID }}
         run: |
-          chmod +x scripts/generate_audio.sh
-          output="$(bash scripts/generate_audio.sh "${{ steps.insight.outputs.path }}")"
-          echo "$output"
-          duration="$(echo "$output" | awk -F= '/AUDIO_DURATION_SECONDS=/{print $2}' | tail -1)"
-          test -n "$duration"
-          echo "duration=${duration}" >> "$GITHUB_OUTPUT"
+          mkdir -p assets
+          if [ "${{ github.event.inputs.skip_audio }}" = "true" ]; then
+            echo "INFO: skip_audio=true, generating 20s silent placeholder"
+            ffmpeg -f lavfi -i anullsrc=channel_layout=mono:sample_rate=32000 -t 20 -c:a libmp3lame -b:a 128k -y assets/voiceover.mp3
+            echo "duration=20" >> "$GITHUB_OUTPUT"
+          else
+            chmod +x scripts/generate_audio.sh
+            output="$(bash scripts/generate_audio.sh "${{ steps.insight.outputs.path }}")"
+            echo "$output"
+            duration="$(echo "$output" | awk -F= '/AUDIO_DURATION_SECONDS=/{print $2}' | tail -1)"
+            test -n "$duration"
+            echo "duration=${duration}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build index.html with Claude Code skill
         id: claude

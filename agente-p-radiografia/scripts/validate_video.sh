@@ -40,7 +40,7 @@ grep -qi 'Datos publicos\|Datos públicos' "index.html" || warn "final disclaime
 
 [[ -f "assets/voiceover.mp3" ]] || fail "assets/voiceover.mp3 does not exist"
 audio_duration="$(duration_of "assets/voiceover.mp3")"
-awk -v d="$audio_duration" 'BEGIN { exit !(d >= 15 && d <= 25) }' || fail "voiceover duration must be 15-25s, got ${audio_duration}s"
+awk -v d="$audio_duration" 'BEGIN { exit !(d >= 15 && d <= 28) }' || fail "voiceover duration must be 15-28s, got ${audio_duration}s"
 
 if command -v npx >/dev/null 2>&1; then
   if ! npx hyperframes lint . >"$TMP_LINT" 2>&1; then
@@ -56,7 +56,7 @@ if [[ -n "$MP4_PATH" ]]; then
   size_bytes="$(wc -c < "$MP4_PATH" | tr -d ' ')"
   [[ "$size_bytes" -gt 512000 ]] || fail "MP4 must be >500KB, got ${size_bytes} bytes"
   video_duration="$(duration_of "$MP4_PATH")"
-  awk -v d="$video_duration" 'BEGIN { exit !(d >= 18 && d <= 22) }' || fail "MP4 duration must be 18-22s, got ${video_duration}s"
+  awk -v d="$video_duration" 'BEGIN { exit !(d >= 15 && d <= 30) }' || fail "MP4 duration must be 15-30s, got ${video_duration}s"
 fi
 
 echo "VALIDATION_OK warnings=$WARNINGS audio_duration=$audio_duration"

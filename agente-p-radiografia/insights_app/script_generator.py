@@ -26,7 +26,7 @@ class ScriptGenerator:
         entidad = str(lic.get("entidad") or "Entidad publica")
         sigla = self._sigla(entidad)
         title = self._title(flag["patron_id"], entidad, monto)
-        voiceover = self._voiceover(flag["patron_id"], entidad, monto, dias, promedio, lic)
+        voiceover = self._voiceover(flag["patron_id"], sigla, monto, dias, promedio, lic)
         return {
             "video_id": f"radiografia-{now:%Y%m%d-%H%M%S}",
             "generated_at": now.isoformat(),
@@ -73,10 +73,10 @@ class ScriptGenerator:
             },
             "audio": {
                 "provider": "MiniMax",
-                "model": "speech-2.6-hd",
-                "voice_id": "Spanish_SeriousMan",
+                "model": "speech-02-hd",
+                "voice_id": "Spanish_CaptivatingStoryteller",
                 "language_boost": "Spanish",
-                "speed": 1.05,
+                "speed": 1.15,
                 "pitch": -1,
                 "emotion": "neutral",
             },
@@ -115,12 +115,43 @@ class ScriptGenerator:
         return f"Alerta en contratacion publica: {amount}"
 
     @staticmethod
-    def _voiceover(pattern: str, entidad: str, monto: float, dias: int, promedio: int, lic: dict[str, Any]) -> str:
+    def _voiceover(pattern: str, sigla: str, monto: float, dias: int, promedio: int, lic: dict[str, Any]) -> str:
         amount = f"S/ {monto:,.0f}"
-        objeto = str(lic.get("objeto", "un contrato publico"))
+        objeto_raw = str(lic.get("objeto", "un contrato publico"))
+        objeto = objeto_raw[:60] + "..." if len(objeto_raw) > 60 else objeto_raw
+        fuente = lic.get("fuente_oficial", "SEACE")
+        cta = "Siguenos: Agente Perry."
         if pattern == "postor_unico_con_proceso_acelerado":
-            return f"Radiografia del gasto publico. Hoy, {entidad}: {amount} adjudicados para {objeto}. El dato que prende la alerta: solo hubo un postor, y el proceso duro {dias} dias, frente a un promedio sectorial de {promedio}. No es sentencia, es una red flag con datos publicos. Fuente: {lic.get('fuente_oficial', 'SEACE')}."
-        return f"Radiografia del gasto publico. Hoy revisamos {entidad}, con un caso por {amount}: {objeto}. El patron detectado exige mirar contratos, fechas y repeticion de actores. No es sentencia, es una red flag basada en datos publicos. Fuente: {lic.get('fuente_oficial', 'SEACE')}."
+            body = (
+                f"Radiografia del gasto publico. {sigla}: {amount} para {objeto}. "
+                f"Un solo postor. {dias} dias de proceso frente a {promedio} en promedio. "
+                f"Datos publicos, fuente {fuente}. No es sentencia, es una red flag."
+            )
+        elif pattern == "proveedor_recurrente":
+            body = (
+                f"Radiografia del gasto publico. {sigla}: {amount} en {objeto}. "
+                f"El mismo proveedor ganando una y otra vez. "
+                f"Patron repetido, datos publicos, fuente {fuente}. No es sentencia, es una red flag."
+            )
+        elif pattern == "fraccionamiento_contractual":
+            body = (
+                f"Radiografia del gasto publico. {sigla}: contratos partidos que suman {amount}. "
+                f"Mismo proveedor, mismo objeto, misma ventana de tiempo. "
+                f"Datos publicos, fuente {fuente}. No es sentencia, es una red flag."
+            )
+        elif pattern == "funcionario_sancionado_activo":
+            body = (
+                f"Radiografia del gasto publico. {sigla}: un contrato de {amount} "
+                f"firmado por un funcionario inhabilitado. La sancion estaba vigente. "
+                f"Datos publicos, fuente {fuente}. No es sentencia, es una red flag."
+            )
+        else:
+            body = (
+                f"Radiografia del gasto publico. {sigla}, caso por {amount}: {objeto}. "
+                f"Patron detectado en contratos, fechas y actores repetidos. "
+                f"Datos publicos, fuente {fuente}. No es sentencia, es una red flag."
+            )
+        return f"{body} {cta}"
 
     @staticmethod
     def _segments(title: str, entidad: str, monto: float, dias: int, promedio: int) -> list[dict[str, Any]]:

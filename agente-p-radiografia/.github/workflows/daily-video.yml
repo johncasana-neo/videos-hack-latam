@@ -6,7 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       modo_test:
-        description: "Skip Buffer publishing"
+        description: "Skip Instagram publishing"
+        type: boolean
+        default: false
+      usar_ejemplo:
+        description: "Use example insight JSON instead of scraping"
+        type: boolean
+        default: false
+      skip_audio:
+        description: "Skip MiniMax TTS, use silent placeholder"
         type: boolean
         default: false
 
@@ -64,7 +72,11 @@ jobs:
           mkdir -p insights
           echo "date=${today}" >> "$GITHUB_OUTPUT"
           echo "path=${path}" >> "$GITHUB_OUTPUT"
-          if python insights_app/main.py --output "$path"; then
+          if [ "${{ github.event.inputs.usar_ejemplo }}" = "true" ]; then
+            cp insights/insight_example_mtc.json "$path"
+            echo "no_cases=false" >> "$GITHUB_OUTPUT"
+            echo "Using example insight JSON."
+          elif python insights_app/main.py --output "$path"; then
             echo "no_cases=false" >> "$GITHUB_OUTPUT"
           else
             code=$?
@@ -91,29 +103,43 @@ jobs:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_GROUP_ID: ${{ secrets.MINIMAX_GROUP_ID }}
         run: |
-          chmod +x scripts/generate_audio.sh
-          output="$(bash scripts/generate_audio.sh "${{ steps.insight.outputs.path }}")"
-          echo "$output"
-          duration="$(echo "$output" | awk -F= '/AUDIO_DURATION_SECONDS=/{print $2}' | tail -1)"
-          test -n "$duration"
-          echo "duration=${duration}" >> "$GITHUB_OUTPUT"
+          mkdir -p assets
+          if [ "${{ github.event.inputs.skip_audio }}" = "true" ]; then
+            echo "INFO: skip_audio=true, generating 20s silent placeholder"
+            ffmpeg -f lavfi -i anullsrc=channel_layout=mono:sample_rate=32000 -t 20 -c:a libmp3lame -b:a 128k -y assets/voiceover.mp3
+            echo "duration=20" >> "$GITHUB_OUTPUT"
+          else
+            chmod +x scripts/generate_audio.sh
+            output="$(bash scripts/generate_audio.sh "${{ steps.insight.outputs.path }}")"
+            echo "$output"
+            duration="$(echo "$output" | awk -F= '/AUDIO_DURATION_SECONDS=/{print $2}' | tail -1)"
+            test -n "$duration"
+            echo "duration=${duration}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Patch insight JSON with actual audio duration
+        if: steps.insight.outputs.no_cases != 'true'
+        run: |
+          path="${{ steps.insight.outputs.path }}"
+          duration="${{ steps.audio.outputs.duration }}"
+          dur_ceil="$(python3 -c "import math; print(math.ceil(float('$duration')))")"
+          jq --argjson d "$dur_ceil" '.output.duration_seconds = $d' "$path" > /tmp/_patched.json
+          mv /tmp/_patched.json "$path"
+          echo "INFO: output.duration_seconds patched to ${dur_ceil}s"
 
       - name: Build index.html with Claude Code skill
         id: claude
         if: steps.insight.outputs.no_cases != 'true'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
-          ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+          ANTHROPIC_API_KEY: ""
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_BASE_URL: "https://openrouter.ai/api"
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: "anthropic/claude-haiku-4.5"
+          ANTHROPIC_DEFAULT_SONNET_MODEL: "anthropic/claude-sonnet-4.6"
+          ANTHROPIC_DEFAULT_OPUS_MODEL: "anthropic/claude-sonnet-4.6"
+          DISABLE_TELEMETRY: "1"
         run: |
-          if [ -n "${OPENROUTER_API_KEY:-}" ]; then
-            export ANTHROPIC_API_KEY="$OPENROUTER_API_KEY"
-            export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL:-https://openrouter.ai/api/v1}"
-            echo "Using Claude Code through OpenRouter: ${ANTHROPIC_BASE_URL}"
-          else
-            echo "Using Claude Code through direct Anthropic API key."
-          fi
+          echo "Using Claude Code through OpenRouter."
           claude -p "/radiografia procesa el insight de hoy con duracion de audio ${{ steps.audio.outputs.duration }} segundos" \
             --allowedTools "Bash,Read,Write,Edit,Glob" \
             --output-format json | tee claude_run.json

@@ -36,7 +36,7 @@ REQUEST_BODY="$(jq -n --arg text "$VOICEOVER_TEXT" '{
   language_boost: "Spanish",
   output_format: "hex",
   voice_setting: {
-    voice_id: "Spanish_SeriousMan",
+    voice_id: "Spanish_CaptivatingStoryteller",
     speed: 1.05,
     pitch: -1,
     emotion: "neutral"

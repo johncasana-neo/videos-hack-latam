@@ -37,6 +37,7 @@
     .small { font-size:28px; color:rgba(255,255,255,.82); }
     .karaoke { position:absolute; left:80px; right:80px; top:1248px; min-height:210px; text-align:center; font-size:72px; line-height:1.06; font-weight:600; text-shadow:5px 5px 0 var(--black); opacity:0; }
     .karaoke strong { color:var(--yellow); }
+    .logo-perry { position:absolute; width:180px; height:180px; object-fit:contain; }
   </style>
 </head>
 <body>
@@ -44,6 +45,7 @@
     <audio id="voiceover" src="assets/voiceover.mp3" data-start="0" data-track-index="2"></audio>
 
     <div id="scene-intro" class="scene">
+      <img src="assets/logo_perry.png" class="logo-perry" style="top:104px;right:78px;" />
       <div class="episode">EPISODIO {{ episode_label }}</div>
       <div class="title">Radiografia<br />del gasto publico</div>
       <div class="case">{{ caso_titulo }}</div>
@@ -87,6 +89,7 @@
 
     <div id="scene-cta" class="scene">
       <div class="cta">SIGUEME ↑</div>
+      <img src="assets/logo_perry.png" class="logo-perry" style="bottom:220px;left:50%;transform:translateX(-50%);" />
       <div class="footer">
         <div>@agente_p<br /><span class="small">Episodio {{ episode_label }}</span></div>
         <div class="small">Datos publicos · Fuente: {{ fuente_oficial }}</div>

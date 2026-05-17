@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es" data-composition-id="radiografia-postor-unico" data-width="1080" data-height="1920" data-fps="30" data-duration="{{ audio_duration }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ caso_titulo }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@600;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0A1628;
+      --grid: #1E3A5F;
+      --green: #4ADE80;
+      --red: #EF4444;
+      --yellow: #FBBF24;
+      --white: #FFFFFF;
+      --pink: #F472B6;
+      --black: #000000;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.06), rgba(10,22,40,0.94) 62%, #050914 100%),
+        linear-gradient(var(--grid) 2px, transparent 2px),
+        linear-gradient(90deg, var(--grid) 2px, transparent 2px),
+        var(--bg);
+      background-size: auto, 60px 60px, 60px 60px, auto;
+      color: var(--white);
+      font-family: "Inter", "Anthropic Sans", Arial, sans-serif;
+    }
+    main { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+    .frame { position: absolute; inset: 0; padding: 104px 78px; }
+    .title {
+      font-family: "Bangers", Impact, sans-serif;
+      font-size: 132px;
+      line-height: 0.92;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      -webkit-text-stroke: 3px var(--black);
+      text-shadow: 8px 8px 0 var(--black);
+    }
+    .episode { color: var(--yellow); font-size: 54px; font-weight: 900; margin-bottom: 28px; }
+    .case { margin-top: 42px; font-size: 62px; line-height: 1.04; font-weight: 900; max-width: 900px; }
+    .pill { display: inline-block; padding: 18px 28px; border: 4px solid var(--black); background: var(--red); color: var(--white); font-weight: 900; font-size: 44px; box-shadow: 7px 7px 0 var(--black); }
+    .facts { position: absolute; top: 410px; left: 78px; right: 78px; display: grid; gap: 34px; }
+    .fact { min-height: 178px; padding: 24px 30px; background: rgba(255,255,255,0.08); border: 4px solid var(--white); box-shadow: 9px 9px 0 var(--black); }
+    .fact b { display: block; font-size: 78px; color: var(--yellow); line-height: 0.95; }
+    .fact span { font-size: 34px; font-weight: 900; text-transform: uppercase; }
+    .context { position: absolute; left: 78px; right: 78px; top: 560px; font-size: 48px; line-height: 1.12; font-weight: 900; }
+    .entity { color: var(--green); }
+    .object { margin-top: 28px; font-size: 42px; }
+    .route { margin-top: 50px; display: flex; align-items: center; gap: 18px; font-size: 38px; color: var(--yellow); }
+    .dot { width: 32px; height: 32px; border-radius: 999px; background: var(--yellow); border: 4px solid var(--black); }
+    .line { flex: 1; height: 12px; background: var(--white); border: 3px solid var(--black); }
+    .bars { position: absolute; left: 78px; right: 78px; top: 700px; display: grid; gap: 58px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 40px; font-weight: 900; margin-bottom: 18px; }
+    .track { height: 84px; background: rgba(255,255,255,0.12); border: 4px solid var(--white); box-shadow: 8px 8px 0 var(--black); }
+    .bar { height: 100%; width: 0%; background: var(--red); border-right: 5px solid var(--black); }
+    .bar.avg { background: var(--green); }
+    .punch { position: absolute; left: 78px; right: 78px; top: 665px; font-family: "Bangers", Impact, sans-serif; font-size: 118px; line-height: 0.98; color: var(--yellow); -webkit-text-stroke: 3px var(--black); transform: rotate(-3deg); }
+    .cta { position: absolute; left: 0; right: 0; top: 620px; text-align: center; font-family: "Bangers", Impact, sans-serif; font-size: 156px; color: var(--pink); -webkit-text-stroke: 4px var(--black); text-shadow: 10px 10px 0 var(--black); }
+    .footer { position: absolute; left: 78px; right: 78px; bottom: 92px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; font-size: 34px; font-weight: 900; }
+    .small { font-size: 28px; color: rgba(255,255,255,0.82); }
+    .karaoke { position: absolute; left: 80px; right: 80px; top: 1248px; min-height: 210px; text-align: center; font-size: 72px; line-height: 1.06; font-weight: 600; text-shadow: 5px 5px 0 var(--black); }
+    .karaoke strong { color: var(--yellow); }
+    .hide { opacity: 0; }
+  </style>
+</head>
+<body>
+  <main id="radiografia-postor-unico" data-composition-id="radiografia-postor-unico" data-width="1080" data-height="1920" data-fps="30" data-start="0" data-duration="{{ audio_duration }}">
+  <audio id="voiceover" src="assets/voiceover.mp3" data-start="0" data-track-index="2"></audio>
+
+  <section id="scene-intro" class="frame clip" data-scene="intro" data-start="0" data-duration="2">
+    <div class="episode">EPISODIO {{ episode_label }}</div>
+    <div class="title">Radiografia<br />del gasto publico</div>
+    <div class="case">{{ caso_titulo }}</div>
+  </section>
+
+  <section id="scene-facts" class="frame clip hide" data-scene="facts" data-start="2" data-duration="3">
+    <div class="pill">POSTOR UNICO</div>
+    <div class="facts">
+      <div class="fact"><b>{{ monto_adjudicado_formato }}</b><span>monto adjudicado</span></div>
+      <div class="fact"><b>{{ numero_postores }}</b><span>postor en carrera</span></div>
+      <div class="fact"><b>{{ dias_proceso }} dias</b><span>frente a {{ promedio_sector }} promedio</span></div>
+    </div>
+  </section>
+
+  <section id="scene-context" class="frame clip hide" data-scene="context" data-start="5" data-duration="5">
+    <div class="context">
+      <div class="entity">{{ entidad_sigla }} - {{ entidad_nombre }}</div>
+      <div class="small">RUC {{ entidad_ruc_censurado }} | Codigo SEACE {{ codigo_seace }}</div>
+      <div class="object">{{ objeto_contrato }}</div>
+      <div class="route"><span class="dot"></span><span>Cusco</span><span class="line"></span><span>Quillabamba</span><span class="dot"></span></div>
+    </div>
+  </section>
+
+  <section id="scene-compare" class="frame clip hide" data-scene="compare" data-start="10" data-duration="4">
+    <div class="title" style="font-size:92px">Velocidad<br />del proceso</div>
+    <div class="bars">
+      <div>
+        <div class="bar-label"><span>Este caso</span><span>{{ dias_proceso }} dias</span></div>
+        <div class="track"><div class="bar" data-bar="case"></div></div>
+      </div>
+      <div>
+        <div class="bar-label"><span>Promedio sector</span><span>{{ promedio_sector }} dias</span></div>
+        <div class="track"><div class="bar avg" data-bar="avg"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="scene-punch" class="frame clip hide" data-scene="punch" data-start="14" data-duration="3">
+    <div class="punch" data-typewriter>Un solo postor. La mitad del tiempo. Millones en juego.</div>
+  </section>
+
+  <section id="scene-cta" class="frame clip hide" data-scene="cta" data-start="17" data-duration="3">
+    <div class="cta">SIGUEME ↑</div>
+    <div class="footer">
+      <div>@agente_p<br /><span class="small">Episodio {{ episode_label }}</span></div>
+      <div class="small">Datos publicos · Fuente: {{ fuente_oficial }}</div>
+    </div>
+  </section>
+
+  <div class="karaoke" data-karaoke>
+    <span>Hoy miramos un contrato de</span> <strong>{{ monto_adjudicado_formato }}</strong>
+  </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const compositionId = "radiografia-postor-unico";
+    const master = gsap.timeline({ id: compositionId, paused: true });
+    const audioDuration = Number("{{ audio_duration }}") || 20;
+    const scale = audioDuration / 20;
+    const scenes = gsap.utils.toArray("[data-scene]");
+    scenes.forEach((scene) => {
+      const start = Number(scene.dataset.start) * scale;
+      const end = start + (Number(scene.dataset.duration) * scale);
+      const tl = gsap.timeline({ id: scene.dataset.scene, paused: true });
+      tl.set(scene, { opacity: 1 }, start)
+        .fromTo(scene.children, { y: 44, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, stagger: 0.08, duration: 0.45, ease: "back.out(1.7)" }, start)
+        .to(scene, { opacity: 0, duration: 0.18 }, end - 0.18);
+      master.add(tl, 0);
+    });
+    const bars = gsap.timeline({ id: "bars", paused: true });
+    bars.to('[data-bar="case"]', { width: "38%", duration: 0.55, ease: "power3.out" }, 10 * scale)
+        .to('[data-bar="avg"]', { width: "94%", duration: 0.55, ease: "power3.out" }, 10.25 * scale);
+    master.add(bars, 0);
+    window.__timelines[compositionId] = master;
+  </script>
+</body>
+</html>

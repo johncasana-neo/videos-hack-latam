@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ffmpeg -version)",
+      "Bash(jq --version)",
+      "Bash(command -v claude)",
+      "Bash(npx hyperframes *)",
+      "Bash(python scripts/generate_audio.py)",
+      "Bash(python scripts/generate_audio.py insights/insight_example_mtc.json)",
+      "Read(//c/c/Users/John/Documents/generador-videos-hacklatam/agente-p-radiografia/**)",
+      "Bash(python -m json.tool)"
+    ]
+  }
+}

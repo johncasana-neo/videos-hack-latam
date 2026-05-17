@@ -14,7 +14,7 @@ on:
         type: boolean
         default: false
       skip_audio:
-        description: "Skip MiniMax TTS, use silent placeholder"
+        description: "Skip ElevenLabs TTS, use silent placeholder"
         type: boolean
         default: false
 
@@ -46,7 +46,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg jq xxd chromium-browser || sudo apt-get install -y ffmpeg jq xxd chromium
+          sudo apt-get install -y ffmpeg jq chromium-browser || sudo apt-get install -y ffmpeg jq chromium
 
       - name: Install Python dependencies
         run: |
@@ -96,17 +96,17 @@ jobs:
           path: ${{ steps.insight.outputs.path }}
           retention-days: 90
 
-      - name: Generate MiniMax voiceover
+      - name: Generate ElevenLabs voiceover
         id: audio
         if: steps.insight.outputs.no_cases != 'true'
         env:
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          MINIMAX_GROUP_ID: ${{ secrets.MINIMAX_GROUP_ID }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ID: ${{ secrets.ELEVENLABS_VOICE_ID }}
         run: |
           mkdir -p assets
           if [ "${{ github.event.inputs.skip_audio }}" = "true" ]; then
             echo "INFO: skip_audio=true, generating 20s silent placeholder"
-            ffmpeg -f lavfi -i anullsrc=channel_layout=mono:sample_rate=32000 -t 20 -c:a libmp3lame -b:a 128k -y assets/voiceover.mp3
+            ffmpeg -f lavfi -i anullsrc=channel_layout=mono:sample_rate=44100 -t 20 -c:a libmp3lame -b:a 128k -y assets/voiceover.mp3
             echo "duration=20" >> "$GITHUB_OUTPUT"
           else
             chmod +x scripts/generate_audio.sh
@@ -117,15 +117,41 @@ jobs:
             echo "duration=${duration}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Patch insight JSON with actual audio duration
+      - name: Patch insight JSON with duration and scene timestamps
         if: steps.insight.outputs.no_cases != 'true'
         run: |
-          path="${{ steps.insight.outputs.path }}"
-          duration="${{ steps.audio.outputs.duration }}"
-          dur_ceil="$(python3 -c "import math; print(math.ceil(float('$duration')))")"
-          jq --argjson d "$dur_ceil" '.output.duration_seconds = $d' "$path" > /tmp/_patched.json
-          mv /tmp/_patched.json "$path"
-          echo "INFO: output.duration_seconds patched to ${dur_ceil}s"
+          python3 - "${{ steps.insight.outputs.path }}" "${{ steps.audio.outputs.duration }}" <<'PYEOF'
+          import json, math, sys
+
+          insight_path, duration_str = sys.argv[1], sys.argv[2]
+          audio_duration = float(duration_str)
+          dur_ceil = math.ceil(audio_duration)
+
+          with open(insight_path, encoding="utf-8") as f:
+              insight = json.load(f)
+
+          insight["output"]["duration_seconds"] = dur_ceil
+
+          try:
+              with open("assets/voiceover_timestamps.json", encoding="utf-8") as f:
+                  ts = json.load(f)
+              st = ts["scene_times"]
+              scene_order = ["t_intro","t_facts","t_context","t_compare","t_punch","t_cta"]
+              labels      = ["intro","facts","context","compare","punch","cta"]
+              times = [st[k] for k in scene_order]
+              segments = []
+              for i, (label, start) in enumerate(zip(labels, times)):
+                  end = times[i+1] if i+1 < len(times) else dur_ceil
+                  segments.append({"start": round(start, 2), "end": round(end, 2), "label": label})
+              insight["script"]["segments"] = segments
+              insight["script"]["scene_times"] = st
+              print(f"INFO: Patched duration={dur_ceil}s + {len(segments)} scene timestamps")
+          except FileNotFoundError:
+              print("WARNING: voiceover_timestamps.json not found, duration only patched")
+
+          with open(insight_path, "w", encoding="utf-8") as f:
+              json.dump(insight, f, indent=2, ensure_ascii=False)
+          PYEOF
 
       - name: Build index.html with Claude Code skill
         id: claude

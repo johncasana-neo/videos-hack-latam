@@ -3,7 +3,7 @@
 # Run from agente-p-radiografia/ directory.
 #
 # Flags:
-#   --skip-audio    Use 20s silent placeholder instead of calling MiniMax
+#   --skip-audio    Use 20s silent placeholder instead of calling ElevenLabs
 #   --skip-publish  Skip IG upload (test mode)
 #   --use-example   Copy insight_example_mtc.json instead of scraping
 set -euo pipefail
@@ -53,18 +53,54 @@ echo ""
 echo "=== [2/7] Audio ==="
 if [[ "$SKIP_AUDIO" == "true" ]]; then
   echo "Generating 20s silent placeholder..."
-  ffmpeg -f lavfi -i anullsrc=channel_layout=mono:sample_rate=32000 \
+  ffmpeg -f lavfi -i anullsrc=channel_layout=mono:sample_rate=44100 \
     -t 20 -c:a libmp3lame -b:a 128k -y assets/voiceover.mp3
   AUDIO_DURATION=20
 else
-  : "${MINIMAX_API_KEY:?MINIMAX_API_KEY required}"
-  : "${MINIMAX_GROUP_ID:?MINIMAX_GROUP_ID required}"
+  : "${ELEVENLABS_API_KEY:?ELEVENLABS_API_KEY required}"
   raw_output="$(python scripts/generate_audio.py "$INSIGHT_PATH")"
   echo "$raw_output"
   AUDIO_DURATION="$(echo "$raw_output" | awk -F= '/AUDIO_DURATION_SECONDS=/{print $2}' | tail -1)"
   [[ -n "$AUDIO_DURATION" ]] || { echo "ERROR: could not parse AUDIO_DURATION_SECONDS" >&2; exit 1; }
 fi
 echo "Audio duration: ${AUDIO_DURATION}s"
+
+# ── Step 2b: Patch insight JSON with timestamps ──────────────────────────────
+echo ""
+echo "=== [2b/7] Patch timestamps ==="
+python - "$INSIGHT_PATH" "$AUDIO_DURATION" <<'PYEOF'
+import json, math, sys
+
+insight_path, duration_str = sys.argv[1], sys.argv[2]
+audio_duration = float(duration_str)
+dur_ceil = math.ceil(audio_duration)
+
+with open(insight_path, encoding="utf-8") as f:
+    insight = json.load(f)
+
+insight["output"]["duration_seconds"] = dur_ceil
+
+try:
+    with open("assets/voiceover_timestamps.json", encoding="utf-8") as f:
+        ts = json.load(f)
+    st = ts["scene_times"]
+    scene_order = ["t_intro","t_facts","t_context","t_compare","t_punch","t_cta"]
+    labels      = ["intro","facts","context","compare","punch","cta"]
+    times = [st[k] for k in scene_order]
+    segments = []
+    for i, (label, start) in enumerate(zip(labels, times)):
+        end = times[i+1] if i+1 < len(times) else dur_ceil
+        segments.append({"start": round(start, 2), "end": round(end, 2), "label": label})
+    insight["script"]["segments"] = segments
+    insight["script"]["scene_times"] = st
+    print(f"INFO: Patched duration={dur_ceil}s + {len(segments)} scene timestamps from ElevenLabs")
+except FileNotFoundError:
+    insight["output"]["duration_seconds"] = dur_ceil
+    print("WARNING: voiceover_timestamps.json not found, only duration patched")
+
+with open(insight_path, "w", encoding="utf-8") as f:
+    json.dump(insight, f, indent=2, ensure_ascii=False)
+PYEOF
 
 # ── Step 3: index.html via Claude Code skill ─────────────────────────────────
 echo ""

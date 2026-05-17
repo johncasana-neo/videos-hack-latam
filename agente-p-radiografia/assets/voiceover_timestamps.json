@@ -1,0 +1,33 @@
+{
+  "audio_duration": 28.096,
+  "sentences": [
+    {
+      "start": 0.0,
+      "end": 2.241
+    },
+    {
+      "start": 2.937,
+      "end": 12.179
+    },
+    {
+      "start": 12.62,
+      "end": 21.525
+    },
+    {
+      "start": 22.036,
+      "end": 26.007
+    },
+    {
+      "start": 26.285,
+      "end": 28.097
+    }
+  ],
+  "scene_times": {
+    "t_intro": 0.0,
+    "t_punch": 22.04,
+    "t_cta": 26.29,
+    "t_facts": 2.94,
+    "t_compare": 12.62,
+    "t_context": 7.78
+  }
+}

@@ -24,9 +24,7 @@ npx hyperframes render . # render index.html + assets/voiceover.mp3 → output/
 
 ### Audio generation
 ```bash
-bash scripts/generate_audio.sh \
-  "$(jq -r '.script.voiceover_text_full' insights/insight_YYYY_MM_DD.json)" \
-  "$MINIMAX_API_KEY" "$MINIMAX_GROUP_ID"
+ELEVENLABS_API_KEY=sk-... bash scripts/generate_audio.sh insights/insight_YYYY_MM_DD.json
 # outputs assets/voiceover.mp3
 ```
 
@@ -65,7 +63,7 @@ npx hyperframes render .
 
 4. **Insight JSON** (`insights_app/script_generator.py`) — Builds the canonical `insights/insight_YYYY_MM_DD.json` with case data, voiceover script, segment timings, and output specs.
 
-5. **Audio** (`scripts/generate_audio.sh`) — MiniMax TTS → hex MP3 → `assets/voiceover.mp3`. Target 15–25s; rejects outside that window.
+5. **Audio** (`scripts/generate_audio.sh`) — ElevenLabs TTS → MP3 → `assets/voiceover.mp3`. Target 15–25s; rejects outside that window.
 
 6. **HTML** (Claude Code skill `/radiografia`) — Reads insight JSON, maps `patron_detectado` → one of four templates in `.claude/skills/radiografia/templates/`, fills Jinja2 placeholders, lints, auto-fixes up to 2×.
 
@@ -113,7 +111,7 @@ Mandatory rules enforced by skill:
 ## Environment Variables
 
 See `.env.example`. Required:
-- `MINIMAX_API_KEY`, `MINIMAX_GROUP_ID`
+- `ELEVENLABS_API_KEY` (required), `ELEVENLABS_VOICE_ID` (optional, default: `pNInz6obpgDQGcFmaJgB`), `ELEVENLABS_MODEL` (optional, default: `eleven_multilingual_v2`)
 - `IG_ACCESS_TOKEN`, `IG_USER_ID` (Instagram Graph API — long-lived token, expira 60 días)
 - `DISCORD_WEBHOOK`
 - `TZ=America/Lima`
@@ -127,7 +125,8 @@ GitHub Actions schedule: daily `08:00 UTC`. Manual trigger supports `modo_test=t
 |---|---|---|
 | `npx hyperframes lint failed` | Unfilled `{{ ... }}` in HTML | Check skill placeholder replacement |
 | `voiceover duration must be 15-25s` | Script too short/long | Adjust `voiceover_text_full` in `script_generator.py` |
-| `MiniMax status_code != 0` | Bad API key or quota | Verify `MINIMAX_API_KEY` and account limits |
+| `ElevenLabs returned HTTP 401` | Bad API key | Verify `ELEVENLABS_API_KEY` |
+| `ElevenLabs returned HTTP 422` | Bad voice ID | Check `ELEVENLABS_VOICE_ID` exists in account |
 | `IG_ACCESS_TOKEN required` | Secret not set in GitHub | Add `IG_ACCESS_TOKEN` and `IG_USER_ID` secrets |
 | `Container reached ERROR` | Video specs wrong | Verify H264, 9:16, moov atom at front |
 | Token expiry after 60 days | Long-lived token expired | Run `ig_refresh_token` grant before expiry |

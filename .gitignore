@@ -1,0 +1,12 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+output/*.mp4
+assets/voiceover.mp3
+insights/insight_2*.json
+.DS_Store
+claude_run.json
+run_log.json
+index.html
+*.log

@@ -1,0 +1,15 @@
+{
+  "name": "agente-p-radiografia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pipeline diario para videos verticales de Radiografia del Gasto Publico.",
+  "type": "module",
+  "scripts": {
+    "preview": "hyperframes preview .",
+    "lint": "hyperframes lint .",
+    "render": "hyperframes render . --output output/radiografia-local.mp4 --workers auto"
+  },
+  "devDependencies": {
+    "hyperframes": "^0.6.15"
+  }
+}

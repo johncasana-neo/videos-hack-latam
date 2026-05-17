@@ -1,0 +1,199 @@
+name: Daily Radiografia Video
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      modo_test:
+        description: "Skip Buffer publishing"
+        type: boolean
+        default: false
+
+env:
+  PYTHONPATH: ${{ github.workspace }}
+  TZ: America/Lima
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg jq xxd chromium-browser || sudo apt-get install -y ffmpeg jq xxd chromium
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Node dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Generate daily insight
+        id: insight
+        run: |
+          today="$(TZ=America/Lima date +%Y_%m_%d)"
+          path="insights/insight_${today}.json"
+          mkdir -p insights
+          echo "date=${today}" >> "$GITHUB_OUTPUT"
+          echo "path=${path}" >> "$GITHUB_OUTPUT"
+          if python insights_app/main.py --output "$path"; then
+            echo "no_cases=false" >> "$GITHUB_OUTPUT"
+          else
+            code=$?
+            if [ "$code" = "1" ]; then
+              echo "no_cases=true" >> "$GITHUB_OUTPUT"
+              echo "No actionable cases today."
+            else
+              exit "$code"
+            fi
+          fi
+
+      - name: Upload insight artifact
+        if: steps.insight.outputs.no_cases != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: insight-${{ steps.insight.outputs.date }}
+          path: ${{ steps.insight.outputs.path }}
+          retention-days: 90
+
+      - name: Generate MiniMax voiceover
+        id: audio
+        if: steps.insight.outputs.no_cases != 'true'
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_GROUP_ID: ${{ secrets.MINIMAX_GROUP_ID }}
+        run: |
+          chmod +x scripts/generate_audio.sh
+          output="$(bash scripts/generate_audio.sh "${{ steps.insight.outputs.path }}")"
+          echo "$output"
+          duration="$(echo "$output" | awk -F= '/AUDIO_DURATION_SECONDS=/{print $2}' | tail -1)"
+          test -n "$duration"
+          echo "duration=${duration}" >> "$GITHUB_OUTPUT"
+
+      - name: Build index.html with Claude Code skill
+        id: claude
+        if: steps.insight.outputs.no_cases != 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
+          ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+        run: |
+          if [ -n "${OPENROUTER_API_KEY:-}" ]; then
+            export ANTHROPIC_API_KEY="$OPENROUTER_API_KEY"
+            export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL:-https://openrouter.ai/api/v1}"
+            echo "Using Claude Code through OpenRouter: ${ANTHROPIC_BASE_URL}"
+          else
+            echo "Using Claude Code through direct Anthropic API key."
+          fi
+          claude -p "/radiografia procesa el insight de hoy con duracion de audio ${{ steps.audio.outputs.duration }} segundos" \
+            --allowedTools "Bash,Read,Write,Edit,Glob" \
+            --output-format json | tee claude_run.json
+          case_title="$(jq -r '.result.case_title // .case_title // "Radiografia del Gasto Publico"' claude_run.json 2>/dev/null || true)"
+          entity_name="$(jq -r '.result.entity_name // .entity_name // "Entidad publica"' claude_run.json 2>/dev/null || true)"
+          echo "case_title=${case_title}" >> "$GITHUB_OUTPUT"
+          echo "entity_name=${entity_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate prerender assets
+        if: steps.insight.outputs.no_cases != 'true'
+        run: |
+          chmod +x scripts/validate_video.sh
+          bash scripts/validate_video.sh
+
+      - name: Render MP4 with HyperFrames
+        id: render
+        if: steps.insight.outputs.no_cases != 'true'
+        run: |
+          output="output/radiografia-${{ steps.insight.outputs.date }}.mp4"
+          mkdir -p output
+          npx hyperframes render . --output "$output" --workers auto
+          echo "mp4=${output}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate rendered MP4
+        if: steps.insight.outputs.no_cases != 'true'
+        run: bash scripts/validate_video.sh "${{ steps.render.outputs.mp4 }}"
+
+      - name: Upload MP4 artifact
+        if: steps.insight.outputs.no_cases != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ steps.insight.outputs.date }}
+          path: ${{ steps.render.outputs.mp4 }}
+          retention-days: 30
+
+      - name: Publish to Instagram
+        if: steps.insight.outputs.no_cases != 'true' && github.event.inputs.modo_test != 'true'
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: |
+          chmod +x scripts/publish_ig.sh
+          bash scripts/publish_ig.sh "${{ steps.render.outputs.mp4 }}" "${{ steps.insight.outputs.path }}"
+
+      - name: Notify Discord
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if [ -z "${DISCORD_WEBHOOK:-}" ]; then
+            echo "DISCORD_WEBHOOK not configured; skipping."
+            exit 0
+          fi
+          run_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          artifacts_url="${run_url}#artifacts"
+          no_cases="${{ steps.insight.outputs.no_cases }}"
+          if [ "$no_cases" = "true" ]; then
+            status="Sin casos hoy"
+            color=16776960
+            title="Radiografia: sin casos publicables"
+          elif [ "${{ job.status }}" = "success" ]; then
+            status="Exito"
+            color=4906624
+            title="${{ steps.claude.outputs.case_title }}"
+          else
+            status="Fallo"
+            color=15681604
+            title="Radiografia: workflow fallo"
+          fi
+          payload="$(jq -n \
+            --arg title "$title" \
+            --arg status "$status" \
+            --arg run "$run_url" \
+            --arg artifacts "$artifacts_url" \
+            --arg entity "${{ steps.claude.outputs.entity_name }}" \
+            --argjson color "$color" \
+            '{embeds:[{title:$title,color:$color,fields:[
+              {name:"Estado",value:$status,inline:true},
+              {name:"Entidad",value:($entity // "N/A"),inline:true},
+              {name:"Run",value:$run,inline:false},
+              {name:"Artifacts",value:$artifacts,inline:false}
+            ]}]}' )"
+          curl -sS -X POST "$DISCORD_WEBHOOK" -H "Content-Type: application/json" -d "$payload"

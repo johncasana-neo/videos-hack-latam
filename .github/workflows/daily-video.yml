@@ -121,18 +121,15 @@ jobs:
         id: claude
         if: steps.insight.outputs.no_cases != 'true'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
-          ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+          ANTHROPIC_API_KEY: ""
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_BASE_URL: "https://openrouter.ai/api"
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: "anthropic/claude-haiku-4.5"
+          ANTHROPIC_DEFAULT_SONNET_MODEL: "anthropic/claude-sonnet-4.6"
+          ANTHROPIC_DEFAULT_OPUS_MODEL: "anthropic/claude-sonnet-4.6"
+          DISABLE_TELEMETRY: "1"
         run: |
-          if [ -n "${OPENROUTER_API_KEY:-}" ]; then
-            export ANTHROPIC_API_KEY="$OPENROUTER_API_KEY"
-            export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL:-https://openrouter.ai/api/v1}"
-            echo "Using Claude Code through OpenRouter: ${ANTHROPIC_BASE_URL}"
-          else
-            echo "Using Claude Code through direct Anthropic API key."
-          fi
+          echo "Using Claude Code through OpenRouter."
           claude -p "/radiografia procesa el insight de hoy con duracion de audio ${{ steps.audio.outputs.duration }} segundos" \
             --allowedTools "Bash,Read,Write,Edit,Glob" \
             --output-format json | tee claude_run.json

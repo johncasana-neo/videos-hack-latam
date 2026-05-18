@@ -56,7 +56,7 @@
     "promedio_sector": 45
   },
   "script": {
-    "voiceover_text_full": "Radiografia del gasto publico. Hoy miramos un contrato del MTC por cuarenta y siete millones ochocientos cincuenta mil soles para la ruta Cusco Quillabamba. La alerta: solo hubo un postor, y el proceso duro dieciocho dias, frente a un promedio sectorial de cuarenta y cinco. No es sentencia, es una red flag con datos publicos. Fuente: SEACE.",
+    "voiceover_text_full": "Radiografia del gasto publico. MTC: cuarenta y siete millones, un solo postor. Cusco Quillabamba. Dieciocho dias, mitad del promedio. No es sentencia, son datos publicos. Fuente SEACE.",
     "segments": [
       {
         "start": 0,
@@ -118,13 +118,12 @@
     "cta": "#F472B6"
   },
   "audio": {
-    "provider": "MiniMax",
-    "model": "speech-2.6-hd",
-    "voice_id": "Spanish_SeriousMan",
-    "language_boost": "Spanish",
-    "speed": 1.05,
-    "pitch": -1,
-    "emotion": "neutral"
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "voice_id": "4XUsiqPDK4UACIM2BILe",
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0.4
   },
   "subtitles": {
     "engine": "whisper",

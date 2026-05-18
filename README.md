@@ -2,7 +2,7 @@
 
 Automatiza la generacion y publicacion diaria de videos verticales de 20 segundos para la serie **Radiografia del Gasto Publico** del proyecto **Agente P : Operaciones Glitch**.
 
-El pipeline detecta red flags en contrataciones publicas peruanas, genera un insight JSON, produce voiceover con MiniMax, construye un HTML con una skill de Claude Code, renderiza MP4 con HyperFrames y publica mediante Buffer.
+El pipeline detecta red flags en contrataciones publicas peruanas, genera un insight JSON, produce voiceover con ElevenLabs, construye un HTML con una skill de Claude Code, renderiza MP4 con HyperFrames y publica en Instagram Reels via la Graph API de Meta.
 
 ## Pipeline
 
@@ -10,7 +10,7 @@ El pipeline detecta red flags en contrataciones publicas peruanas, genera un ins
 2. `scripts/generate_audio.sh` convierte `script.voiceover_text_full` en `assets/voiceover.mp3`.
 3. La skill `.claude/skills/radiografia` elige una plantilla y genera `index.html`.
 4. `npx hyperframes render` produce `output/radiografia-YYYY_MM_DD.mp4`.
-5. `scripts/publish_buffer.sh` programa TikTok, Instagram Reels y YouTube Shorts.
+5. `scripts/publish_ig.sh` sube el MP4 directamente a Meta (resumable upload) y publica como Reel.
 6. GitHub Actions notifica el resultado en Discord.
 
 ## Prueba local
@@ -43,18 +43,16 @@ python insights_app/main.py --output insights/insight_$(date +%Y_%m_%d).json
 
 ## GitHub Secrets
 
-Configura estos secrets en el repositorio privado:
+Configura estos secrets en el repositorio:
 
 - `ANTHROPIC_API_KEY`: API key directa de Anthropic para Claude Code.
 - `OPENROUTER_API_KEY`: alternativa si no tienes key directa de Anthropic.
 - `ANTHROPIC_BASE_URL`: usa `https://openrouter.ai/api` para OpenRouter.
-- `ANTHROPIC_MODEL`: opcional, modelo aceptado por tu gateway, por ejemplo `anthropic/claude-sonnet-4.5`.
-- `MINIMAX_API_KEY`: API key de MiniMax TTS.
-- `MINIMAX_GROUP_ID`: group id de MiniMax.
-- `BUFFER_ACCESS_TOKEN`: token de Buffer.
-- `BUFFER_TIKTOK_PROFILE_ID`: profile id de TikTok en Buffer.
-- `BUFFER_IG_PROFILE_ID`: profile id de Instagram en Buffer.
-- `BUFFER_YT_PROFILE_ID`: profile id de YouTube en Buffer.
+- `ANTHROPIC_MODEL`: opcional, modelo aceptado por tu gateway, por ejemplo `anthropic/claude-sonnet-4.6`.
+- `ELEVENLABS_API_KEY`: API key de ElevenLabs TTS.
+- `ELEVENLABS_VOICE_ID`: opcional, ID de voz ElevenLabs.
+- `IG_ACCESS_TOKEN`: token de larga duracion de la Instagram Graph API (expira ~60 dias).
+- `IG_USER_ID`: ID numerico de la cuenta Instagram Business.
 - `DISCORD_WEBHOOK`: webhook de Discord para notificaciones.
 
 ## Agregar una red flag
@@ -74,11 +72,11 @@ schedule:
   - cron: "0 8 * * *"
 ```
 
-La publicacion se programa a las `19:00 Lima` dentro de `scripts/publish_buffer.sh`.
+La publicacion se programa via Instagram Graph API desde `scripts/publish_ig.sh`.
 
 ## Desactivar publicacion temporal
 
-Ejecuta el workflow manualmente con `workflow_dispatch` y `modo_test=true`. Esto genera insight, audio, HTML, MP4 y artifacts, pero salta Buffer.
+Ejecuta el workflow manualmente con `workflow_dispatch` y `modo_test=true`. Esto genera insight, audio, HTML, MP4 y artifacts, pero salta la publicacion en Instagram.
 
 ## Usar OpenRouter en vez de Anthropic directo
 
@@ -96,7 +94,9 @@ El workflow detecta `OPENROUTER_API_KEY`, lo pasa a Claude Code como `ANTHROPIC_
 
 - `npx hyperframes lint failed`: revisa que `index.html` no tenga placeholders `{{ ... }}` sin resolver y que exista `assets/voiceover.mp3`.
 - `voiceover duration must be 15-25s`: ajusta `script.voiceover_text_full` para acercarlo a 20 segundos.
-- `MiniMax status_code != 0`: revisa `MINIMAX_API_KEY`, `MINIMAX_GROUP_ID` y limites de cuenta.
-- `Buffer rejected`: confirma profile ids y permisos para videos verticales.
+- `ElevenLabs returned HTTP 401`: verifica `ELEVENLABS_API_KEY`.
+- `Container reached ERROR`: verifica que el MP4 sea H264, 9:16, con audio AAC y moov atom al frente.
+- `IG_ACCESS_TOKEN required`: agrega `IG_ACCESS_TOKEN` e `IG_USER_ID` a `.env` o GitHub Secrets.
+- `Token expiry`: renueva el token cada ~55 dias con el grant `ig_refresh_token`.
 - `no hay casos suficientes hoy`: la app no encontro red flags con score minimo o evita repetir entidad de los ultimos 7 dias.
 - `npm ci` falla localmente: ejecuta primero `npm install` para generar `package-lock.json`.

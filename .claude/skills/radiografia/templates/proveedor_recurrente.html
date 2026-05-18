@@ -5,118 +5,321 @@
   <meta name="viewport" content="width=1080, height=1920" />
   <title>{{ caso_titulo }}</title>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@600;900&display=swap" rel="stylesheet" />
+  <link href="assets/animations.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
   <style>
-    :root { --bg:#0A1628; --grid:#1E3A5F; --green:#4ADE80; --red:#EF4444; --yellow:#FBBF24; --white:#FFFFFF; --pink:#F472B6; --black:#000000; }
+    :root {
+      --bg:#0A1628; --grid:#1E3A5F;
+      --green:#4ADE80; --red:#EF4444; --yellow:#FBBF24;
+      --white:#FFFFFF; --pink:#F472B6; --black:#000000;
+    }
     * { box-sizing:border-box; margin:0; padding:0; }
-    html, body { width:1080px; height:1920px; overflow:hidden; color:var(--white); font-family:"Inter",Arial,sans-serif; background:radial-gradient(circle at center,rgba(255,255,255,.06),rgba(10,22,40,.96) 64%,#050914 100%),linear-gradient(var(--grid) 2px,transparent 2px),linear-gradient(90deg,var(--grid) 2px,transparent 2px),var(--bg); background-size:auto,60px 60px,60px 60px,auto; }
+    html, body {
+      width:1080px; height:1920px; overflow:hidden;
+      color:var(--white); font-family:"Inter",Arial,sans-serif;
+      background:
+        radial-gradient(circle at center,rgba(255,255,255,.06),rgba(10,22,40,.96) 64%,#050914 100%),
+        linear-gradient(var(--grid) 2px,transparent 2px),
+        linear-gradient(90deg,var(--grid) 2px,transparent 2px),
+        var(--bg);
+      background-size:auto,60px 60px,60px 60px,auto;
+    }
     #root { position:relative; width:1080px; height:1920px; overflow:hidden; }
-    .scene { position:absolute; inset:0; padding:104px 78px; opacity:0; }
+
+    .scene { position:absolute; inset:0; padding:104px 78px; opacity:0; z-index:10; }
+
     .title { font-family:"Bangers",Impact,sans-serif; font-size:126px; line-height:.92; text-transform:uppercase; -webkit-text-stroke:3px var(--black); text-shadow:8px 8px 0 var(--black); }
-    .episode { color:var(--yellow); font-size:54px; font-weight:900; margin-bottom:28px; }
-    .case { margin-top:42px; font-size:60px; line-height:1.04; font-weight:900; }
-    .pill { display:inline-block; padding:18px 28px; border:4px solid var(--black); background:var(--red); font-weight:900; font-size:42px; box-shadow:7px 7px 0 var(--black); }
-    .facts { position:absolute; top:420px; left:78px; right:78px; display:grid; gap:34px; }
-    .fact { min-height:170px; padding:24px 30px; background:rgba(255,255,255,.08); border:4px solid var(--white); box-shadow:9px 9px 0 var(--black); }
-    .fact b { display:block; font-size:76px; color:var(--yellow); line-height:.95; }
-    .fact span { font-size:34px; font-weight:900; text-transform:uppercase; }
-    .context { position:absolute; left:78px; right:78px; top:560px; font-size:48px; line-height:1.12; font-weight:900; }
+    .episode { color:var(--yellow); font-size:52px; font-weight:900; margin-bottom:24px; }
+    .case { margin-top:40px; font-size:60px; line-height:1.04; font-weight:900; }
+
+    .pill { display:inline-block; padding:16px 26px; border:4px solid var(--black); background:var(--red); font-weight:900; font-size:40px; box-shadow:7px 7px 0 var(--black); }
+    .facts { position:absolute; top:400px; left:78px; right:78px; display:grid; gap:30px; }
+    .fact { min-height:168px; padding:24px 30px; background:rgba(255,255,255,.08); border:4px solid var(--white); box-shadow:9px 9px 0 var(--black); }
+    .fact b { display:block; font-size:74px; color:var(--yellow); line-height:.95; }
+    .fact span { font-size:33px; font-weight:900; text-transform:uppercase; }
+
+    .context { position:absolute; left:78px; right:78px; top:540px; font-size:46px; line-height:1.14; font-weight:900; }
     .entity { color:var(--green); }
-    .object { margin-top:28px; font-size:42px; }
-    .counter { position:absolute; left:78px; right:78px; top:555px; text-align:center; }
-    .count { font-size:250px; font-weight:900; color:var(--yellow); line-height:.85; -webkit-text-stroke:5px var(--black); }
-    .count-label { font-size:48px; font-weight:900; text-transform:uppercase; }
-    .heatmap { position:absolute; left:78px; right:78px; top:965px; display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
-    .cell { height:116px; border:4px solid var(--black); background:rgba(74,222,128,.25); box-shadow:5px 5px 0 var(--black); display:grid; place-items:center; font-weight:900; font-size:30px; }
-    .cell.hot { background:var(--red); }
+    .object { margin-top:28px; font-size:40px; }
+
+    /* Compare: contador + heatmap anual */
+    .compare-title { font-family:"Bangers",Impact,sans-serif; font-size:90px; line-height:.92; text-transform:uppercase; -webkit-text-stroke:3px var(--black); text-shadow:8px 8px 0 var(--black); }
+
+    .counter-zone { position:absolute; left:78px; right:78px; top:248px; text-align:center; }
+    .count {
+      font-size:240px; font-weight:900; color:var(--yellow); line-height:.85;
+      -webkit-text-stroke:5px var(--black); text-shadow:10px 10px 0 var(--black);
+    }
+    .count-label { font-size:46px; font-weight:900; text-transform:uppercase; margin-top:12px; }
+
+    /* Heatmap: 4 columnas × 3 filas = 12 meses */
+    .heatmap { position:absolute; left:78px; right:78px; top:690px; display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+    .cell {
+      height:110px; border:4px solid var(--black);
+      background:rgba(74,222,128,0.14); box-shadow:5px 5px 0 var(--black);
+      display:grid; place-items:center; font-weight:900; font-size:30px;
+      opacity:0;
+    }
+    .cell.hot  { background:var(--red); }
     .cell.warm { background:var(--yellow); color:var(--black); }
-    .punch { position:absolute; left:78px; right:78px; top:665px; font-family:"Bangers",Impact,sans-serif; font-size:112px; line-height:.98; color:var(--yellow); -webkit-text-stroke:3px var(--black); transform:rotate(-3deg); }
-    .cta { position:absolute; left:0; right:0; top:620px; text-align:center; font-family:"Bangers",Impact,sans-serif; font-size:156px; color:var(--pink); -webkit-text-stroke:4px var(--black); text-shadow:10px 10px 0 var(--black); }
-    .footer { position:absolute; left:78px; right:78px; bottom:92px; display:flex; justify-content:space-between; align-items:flex-end; gap:24px; font-size:34px; font-weight:900; }
+
+    /* Leyenda */
+    .heatmap-legend {
+      position:absolute; left:78px; right:78px; top:1060px;
+      display:flex; gap:32px; font-size:30px; font-weight:900; align-items:center;
+    }
+    .leg-dot { width:26px; height:26px; border-radius:4px; border:3px solid var(--black); flex-shrink:0; }
+
+    /* Punch / CTA / Karaoke */
+    .punch { position:absolute; left:78px; right:78px; top:640px; font-family:"Bangers",Impact,sans-serif; font-size:108px; line-height:.97; color:var(--yellow); -webkit-text-stroke:3px var(--black); }
+    .cta { position:absolute; left:0; right:0; top:610px; text-align:center; font-family:"Bangers",Impact,sans-serif; font-size:154px; color:var(--pink); -webkit-text-stroke:4px var(--black); text-shadow:10px 10px 0 var(--black); }
+    .brand-footer { position:absolute; left:0; right:0; bottom:110px; text-align:center; }
+    .brand-handle { font-family:"Bangers",Impact,sans-serif; font-size:72px; color:var(--green); -webkit-text-stroke:2px var(--black); text-shadow:5px 5px 0 var(--black); }
+    .brand-sub { font-size:40px; font-weight:900; color:var(--white); margin-top:10px; }
     .small { font-size:28px; color:rgba(255,255,255,.82); }
-    .karaoke { position:absolute; left:80px; right:80px; top:1248px; min-height:210px; text-align:center; font-size:72px; line-height:1.06; font-weight:600; text-shadow:5px 5px 0 var(--black); opacity:0; }
+    .karaoke { position:absolute; left:80px; right:80px; top:1248px; min-height:210px; text-align:center; font-size:70px; line-height:1.06; font-weight:600; text-shadow:5px 5px 0 var(--black); opacity:0; z-index:20; }
     .karaoke strong { color:var(--yellow); }
-    .logo-perry { position:absolute; width:180px; height:180px; object-fit:contain; }
+    .logo-perry { position:absolute; width:260px; height:260px; object-fit:contain; }
+
+    /* REGLA 3: hook brutalista intro */
+    #scene-intro { background:#000; padding:0 !important; display:flex; align-items:center; justify-content:center; }
+    #hook-datum { font-size:180px; font-weight:900; color:#fff; text-align:center; -webkit-text-stroke:4px #000; text-shadow:8px 8px 0 #000; line-height:.85; padding:40px; }
+
+    /* REGLA 6: brand series en CTA */
+    .brand-series { font-size:32px; font-weight:900; color:rgba(255,255,255,.65); margin-top:8px; }
   </style>
 </head>
 <body>
-  <div id="root" data-composition-id="main" data-start="0" data-duration="{{ audio_duration }}" data-width="1080" data-height="1920">
-    <audio id="voiceover" src="assets/voiceover.mp3" data-start="0" data-track-index="2"></audio>
+<div id="root" data-composition-id="main" data-start="0" data-duration="{{ audio_duration }}" data-width="1080" data-height="1920">
 
-    <div id="scene-intro" class="scene">
-      <img src="assets/logo_perry.png" class="logo-perry" style="top:104px;right:78px;" />
-      <div class="episode">EPISODIO {{ episode_label }}</div>
-      <div class="title">Radiografia<br />del gasto publico</div>
-      <div class="case">{{ caso_titulo }}</div>
-    </div>
+  <!-- ── PERRY: 3 MOMENTOS ──────────────────────────────────────── -->
+  <img src="assets/logo_perry.png" id="perry-intro"  alt="" />
+  <img src="assets/logo_perry.png" id="perry-react"  alt="" />
 
-    <div id="scene-facts" class="scene">
-      <div class="pill">PROVEEDOR RECURRENTE</div>
-      <div class="facts">
-        <div class="fact"><b>{{ monto_adjudicado_formato }}</b><span>monto revisado</span></div>
-        <div class="fact"><b>{{ numero_postores }}</b><span>postores en este proceso</span></div>
-        <div class="fact"><b>{{ dias_proceso }} dias</b><span>duracion del proceso</span></div>
+  <canvas id="binary-rain" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+  <div class="grid-pulse"></div>
+
+  <audio id="voiceover" src="assets/voiceover.mp3" data-start="0" data-track-index="2"></audio>
+
+  <!-- INTRO: hook brutalista (REGLA 3) -->
+  <div id="scene-intro" class="scene">
+    <div id="hook-datum">{{ numero_postores }}<br><span style="font-size:72px;font-weight:900;-webkit-text-stroke:2px #000;">CONTRATOS</span></div>
+  </div>
+
+  <!-- FACTS -->
+  <div id="scene-facts" class="scene">
+    <div class="pill">PROVEEDOR RECURRENTE</div>
+    <div class="facts">
+      <div class="fact">
+        <b id="monto-val" class="anim-glow">{{ monto_adjudicado_formato }}</b>
+        <span>monto revisado</span>
       </div>
-    </div>
-
-    <div id="scene-context" class="scene">
-      <div class="context">
-        <div class="entity">{{ entidad_sigla }} - {{ entidad_nombre }}</div>
-        <div class="small">RUC {{ entidad_ruc_censurado }} | Codigo SEACE {{ codigo_seace }}</div>
-        <div class="object">{{ objeto_contrato }}</div>
+      <div class="fact">
+        <b id="postores-val">{{ numero_postores }}</b>
+        <span>postores en este proceso</span>
       </div>
-    </div>
-
-    <div id="scene-compare" class="scene">
-      <div class="title" style="font-size:90px">Misma puerta,<br />muchas veces</div>
-      <div class="counter"><div class="count" id="count">6</div><div class="count-label">contratos en 12 meses</div></div>
-      <div class="heatmap">
-        <div class="cell hot">ENE</div><div class="cell warm">FEB</div><div class="cell hot">MAR</div><div class="cell">ABR</div>
-        <div class="cell hot">MAY</div><div class="cell warm">JUN</div><div class="cell">JUL</div><div class="cell hot">AGO</div>
+      <div class="fact">
+        <b id="dias-val">{{ dias_proceso }}</b>
+        <span>dias duracion del proceso</span>
       </div>
-    </div>
-
-    <div id="scene-punch" class="scene">
-      <div class="punch">Cuando ganar se vuelve costumbre, toca mirar el patron.</div>
-    </div>
-
-    <div id="scene-cta" class="scene">
-      <div class="cta">SIGUEME ↑</div>
-      <img src="assets/logo_perry.png" class="logo-perry" style="bottom:220px;left:50%;transform:translateX(-50%);" />
-      <div class="footer">
-        <div>@agente_p<br /><span class="small">Episodio {{ episode_label }}</span></div>
-        <div class="small">Datos publicos · Fuente: {{ fuente_oficial }}</div>
-      </div>
-    </div>
-
-    <div id="karaoke" class="karaoke">
-      <span>El dato no es solo quien gano, sino</span> <strong>cuantas veces</strong>
     </div>
   </div>
 
-  <script>
-    window.__timelines = window.__timelines || {};
-    const audioDuration = Number("{{ audio_duration }}") || 20;
-    const scale = audioDuration / 20;
-    const tl = gsap.timeline({ paused: true });
+  <!-- CONTEXT -->
+  <div id="scene-context" class="scene">
+    <div class="context">
+      <div class="entity">{{ entidad_sigla }} — {{ entidad_nombre }}</div>
+      <div class="small">RUC {{ entidad_ruc_censurado }} &nbsp;|&nbsp; Codigo SEACE {{ codigo_seace }}</div>
+      <div class="object">{{ objeto_contrato }}</div>
+    </div>
+  </div>
 
-    function showScene(id, start, duration) {
-      tl.to(id, { opacity: 1, duration: 0.4, ease: "power2.out" }, start * scale);
-      tl.to(id, { opacity: 0, duration: 0.3, ease: "power2.in" }, (start + duration - 0.3) * scale);
-    }
+  <!-- COMPARE: contador acumulativo + heatmap 12 meses -->
+  <div id="scene-compare" class="scene">
+    <div class="compare-title">Misma puerta,<br />muchas veces</div>
 
-    showScene("#scene-intro", 0, 2);
-    showScene("#scene-facts", 2, 3);
-    tl.from("#scene-facts .fact", { y: 60, opacity: 0, stagger: 0.15, duration: 0.5, ease: "back.out(1.7)" }, 2.2 * scale);
-    showScene("#scene-context", 5, 5);
-    showScene("#scene-compare", 10, 4);
-    tl.from(".cell", { scale: 0.5, opacity: 0, stagger: 0.06, duration: 0.4, ease: "back.out(2)" }, 10.3 * scale);
-    showScene("#scene-punch", 14, 3);
-    showScene("#scene-cta", 17, 3);
-    tl.to("#karaoke", { opacity: 1, duration: 0.5 }, 1 * scale);
-    tl.to("#karaoke", { opacity: 0, duration: 0.5 }, 17 * scale);
+    <div class="counter-zone">
+      <!-- numero_postores = conteo de contratos ganados para este patron -->
+      <div class="count" id="count-num">0</div>
+      <div class="count-label">contratos en 12 meses</div>
+    </div>
 
-    window.__timelines["main"] = tl;
-  </script>
+    <!-- Heatmap anual: 12 meses, marcados con hot/warm/cool según actividad -->
+    <div class="heatmap">
+      <div class="cell hot"  id="hm-ene">ENE</div>
+      <div class="cell warm" id="hm-feb">FEB</div>
+      <div class="cell hot"  id="hm-mar">MAR</div>
+      <div class="cell"      id="hm-abr">ABR</div>
+      <div class="cell hot"  id="hm-may">MAY</div>
+      <div class="cell warm" id="hm-jun">JUN</div>
+      <div class="cell"      id="hm-jul">JUL</div>
+      <div class="cell hot"  id="hm-ago">AGO</div>
+      <div class="cell"      id="hm-sep">SEP</div>
+      <div class="cell warm" id="hm-oct">OCT</div>
+      <div class="cell hot"  id="hm-nov">NOV</div>
+      <div class="cell"      id="hm-dic">DIC</div>
+    </div>
+
+    <div class="heatmap-legend" id="heatmap-legend" style="opacity:0">
+      <div class="leg-dot" style="background:var(--red)"></div> Adjudicado
+      &nbsp;
+      <div class="leg-dot" style="background:var(--yellow)"></div> Actividad
+      &nbsp;
+      <div class="leg-dot" style="background:rgba(74,222,128,0.14)"></div> Sin contrato
+    </div>
+  </div>
+
+  <!-- PUNCH -->
+  <div id="scene-punch" class="scene">
+    <div id="punch-text" class="punch">Cuando ganar<br />se vuelve costumbre,<br />toca mirar el patron.</div>
+  </div>
+
+  <!-- CTA -->
+  <div id="scene-cta" class="scene">
+    <div class="cta">SIGUEME <span class="anim-wiggle">↑</span></div>
+    <img src="assets/logo_perry.png" class="logo-perry" style="bottom:300px;left:50%;transform:translateX(-50%);" />
+    <div class="brand-footer">
+      <div class="brand-handle">@agente_p</div>
+      <div class="brand-sub">Siguenos en Agente P</div>
+      <div class="brand-series">Radiografia del Gasto Publico &middot; Ep.{{ episode_label }}</div>
+    </div>
+  </div>
+
+  <!-- KARAOKE PALABRA A PALABRA (REGLA 2) -->
+  <div id="karaoke" style="position:absolute;left:0;right:0;top:1248px;height:180px;text-align:center;z-index:20;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+    <span id="karaoke-word" style="font-family:'Inter',Arial,sans-serif;font-size:84px;font-weight:900;color:#fff;-webkit-text-stroke:4px #000;text-shadow:5px 5px 0 #000;"></span>
+  </div>
+
+  <!-- STATUS BAR (REGLA 6) -->
+  <div id="status-bar" style="position:absolute;left:0;right:0;top:1450px;text-align:center;font-size:32px;font-weight:900;color:rgba(255,255,255,0.6);letter-spacing:3px;z-index:20;font-family:'Inter',Arial,sans-serif;pointer-events:none;">
+    CASO #{{ episode_label }} &nbsp;&middot;&nbsp; CONFIDENCE {{ confidence_pct }}%
+  </div>
+
+  <div class="scanline"></div>
+  <div class="rec-indicator"><div class="rec-dot-anim"></div>REC</div>
+  <div class="corner-vignette tl"></div>
+  <div class="corner-vignette tr"></div>
+  <div class="corner-vignette bl"></div>
+  <div class="corner-vignette br"></div>
+
+</div>
+
+<script src="assets/animations.js"></script>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  const T = {
+    intro:   {{ t_intro }},
+    facts:   {{ t_facts }},
+    context: {{ t_context }},
+    compare: {{ t_compare }},
+    punch:   {{ t_punch }},
+    cta:     {{ t_cta }},
+    end:     {{ audio_duration }}
+  };
+
+  function showScene(id, start, end) {
+    tl.to(id, { opacity: 1, duration: 0.4, ease: 'power2.out' }, start);
+    tl.to(id, { opacity: 0, duration: 0.3, ease: 'power2.in'  }, end - 0.3);
+  }
+
+  /* INTRO: hook brutalista (REGLA 3) */
+  showScene('#scene-intro', T.intro, T.facts);
+  rgbGlitch('#hook-datum', tl, T.intro);
+
+  /* FACTS */
+  showScene('#scene-facts', T.facts, T.context);
+  tl.from('#scene-facts .fact', { y: 70, opacity: 0, stagger: 0.16, duration: 0.5, ease: 'back.out(1.7)' }, T.facts + 0.2);
+  countUp('#postores-val', {{ numero_postores }}, tl, T.facts + 0.5, 0.7, '');
+  countUp('#dias-val', {{ dias_proceso }}, tl, T.facts + 0.7, 0.7, ' días');
+
+  /* CONTEXT */
+  showScene('#scene-context', T.context, T.compare);
+  tl.from('#scene-context .entity', { x: -80, opacity: 0, duration: 0.5, ease: 'back.out(1.5)' }, T.context + 0.3);
+  tl.from('#scene-context .object', { y: 30, opacity: 0, duration: 0.4 }, T.context + 0.7);
+
+  /* COMPARE: contador acumulativo + heatmap */
+  showScene('#scene-compare', T.compare, T.punch);
+
+  /* 1. Contador sube de 0 al valor con cada tick vibrando */
+  countUp('#count-num', {{ numero_postores }}, tl, T.compare + 0.3, 1.4, '');
+  /* Cada incremento: pequeño scale pop en el número */
+  tl.to('#count-num', { scale: 1.08, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: {{ numero_postores }} < 10 ? {{ numero_postores }} : 8 }, T.compare + 0.3);
+
+  /* 2. Celdas del heatmap aparecen con stagger desde el centro */
+  const cells = document.querySelectorAll('.cell');
+  tl.to('.cell', {
+    opacity: 1,
+    scale: 1,
+    stagger: { amount: 1.1, from: 'center' },
+    duration: 0.35,
+    ease: 'back.out(2)',
+    transformOrigin: 'center center'
+  }, T.compare + 0.7);
+  /* Las celdas "hot" vibran después de aparecer */
+  tl.call(() => {
+    document.querySelectorAll('.cell.hot').forEach(c => c.classList.add('anim-hot'));
+  }, [], T.compare + 1.85);
+
+  /* 3. Leyenda aparece */
+  tl.to('#heatmap-legend', { opacity: 1, y: 0, duration: 0.4 }, T.compare + 2.1);
+
+  /* PUNCH */
+  showScene('#scene-punch', T.punch, T.cta);
+  textCorrupt('#punch-text', tl, T.punch + 0.15);
+
+  /* CTA */
+  showScene('#scene-cta', T.cta, T.end);
+  tl.from('#scene-cta .cta', { scale: 0.6, opacity: 0, duration: 0.5, ease: 'back.out(2)' }, T.cta + 0.2);
+
+  /* KARAOKE PALABRA POR PALABRA (REGLA 2) */
+  const KWORDS = {{ karaoke_words_json }};
+  const KWORD_EL = document.getElementById('karaoke-word');
+  const KHIGHLIGHT = /[\d,./]+|inhabilitado|postor|u[ní]nico|solo|sancionado|fraccionamiento|millones|mil/i;
+  KWORDS.forEach((w, i) => {
+    tl.call(() => {
+      KWORD_EL.textContent = w.word;
+      KWORD_EL.style.color = KHIGHLIGHT.test(w.word) ? '#FBBF24' : '#FFFFFF';
+      gsap.fromTo(KWORD_EL, { scale: 0.8 }, { scale: 1, duration: 0.1, ease: 'power2.out' });
+    }, [], w.start);
+    const nextStart = i + 1 < KWORDS.length ? KWORDS[i + 1].start : w.end;
+    tl.call(() => { KWORD_EL.textContent = ''; }, [], nextStart - 0.04);
+  });
+
+  /* ── PERRY M1: intro de marca (600ms dentro del hook) ── */
+  tl.to('#perry-intro', { opacity: 1, duration: 0.12, ease: 'power3.out' }, T.intro + 0.5);
+  rgbGlitch('#perry-intro', tl, T.intro + 0.5);
+  tl.set('#perry-intro', { opacity: 0 }, T.intro + 1.1);
+
+  /* ── PERRY M2: reaccion al dato anomalo (revelacion T.facts) ── */
+  tl.fromTo('#perry-react',
+    { opacity: 0, x: 60 },
+    { opacity: 1, x: 0, duration: 0.18, ease: 'back.out(2)' },
+    T.facts + 0.2
+  );
+  tl.to('#perry-react', {
+    keyframes: [
+      { x: -9, duration: 0.06 },
+      { x: 9,  filter: 'drop-shadow(0 0 22px #EF4444)', duration: 0.06 },
+      { x: -6, duration: 0.05 },
+      { x: 6,  duration: 0.05 },
+      { x: 0,  filter: 'drop-shadow(0 0 12px #EF4444)', duration: 0.06 }
+    ]
+  }, T.facts + 0.38);
+  tl.to('#perry-react', { opacity: 0, filter: 'none', duration: 0.14 }, T.facts + 1.0);
+
+  /* ── PERRY M3: CTA — grande centrado, bob finito, quieto en ultimos 0.8s ── */
+  tl.from('#scene-cta .logo-perry', { y: 60, opacity: 0, duration: 0.55, ease: 'back.out(2.2)' }, T.cta + 0.4);
+  tl.call(() => {
+    const bobTween = gsap.to('#scene-cta .logo-perry', { y: -16, duration: 0.9, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+    gsap.delayedCall(T.end - (T.cta + 1.1) - 0.8, () => {
+      bobTween.kill();
+      gsap.to('#scene-cta .logo-perry', { y: 0, duration: 0.3, ease: 'power2.out' });
+    });
+  }, [], T.cta + 1.1);
+
+  window.__timelines['main'] = tl;
+</script>
 </body>
 </html>

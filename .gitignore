@@ -1,12 +1,53 @@
+# Dependencias
 node_modules/
+venv/
+
+# Python compilado
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Credenciales y variables de entorno
 .env
-output/*.mp4
-assets/voiceover.mp3
-insights/insight_2*.json
-.DS_Store
+.env.*
+*.key
+*.pem
+
+# Configuración local de Claude / sesiones
+.claude/settings.local.json
+.claude_run_local.json
 claude_run.json
 run_log.json
+
+# Outputs generados
+output/*.mp4
+output/frames/
+output/validate_*.png
 index.html
+
+# Assets generados
+assets/voiceover.mp3
+assets/voiceover_timestamps.json
+
+# Insights diarios (solo conservar ejemplos)
+insights/insight_2*.json
+
+# Archivos temporales y de prueba
+test.json
+test2.json
+bash
 *.log
+*.tmp
+
+# Documentación local (no necesaria para el pipeline)
+ANIMATIONS_GUIDE.md
+STYLE_GUIDE.md
+
+# Scripts que no forman parte del pipeline principal
+scripts/test_ig_token.sh
+scripts/upload_github_release.sh
+
+# OS
+.DS_Store
+Thumbs.db

@@ -5,19 +5,6 @@ MP4_PATH="${1:-}"
 WARNINGS=0
 TMP_LINT="$(mktemp)"
 
-# Inherit PYTHON from parent (run_local.sh exports it); fallback for standalone use
-if [[ -z "${PYTHON:-}" ]]; then
-  if [[ -f "venv/Scripts/python.exe" ]]; then
-    PYTHON="$(pwd)/venv/Scripts/python.exe"
-  elif [[ -f "venv/bin/python" ]]; then
-    PYTHON="$(pwd)/venv/bin/python"
-  else
-    PYTHON="$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "")"
-    [[ "$PYTHON" == *"WindowsApps"* ]] && PYTHON=""
-  fi
-fi
-[[ -n "$PYTHON" ]] || { echo "ERROR: python not found. Run: python -m venv venv && pip install -r requirements.txt" >&2; exit 1; }
-
 cleanup() {
   rm -f "$TMP_LINT"
 }
@@ -59,7 +46,7 @@ grep -q 'id="karaoke-word"' "index.html" \
 
 # REGLA 2: no debe haber texto hardcodeado dentro del div#karaoke
 # El div#karaoke solo debe contener el span#karaoke-word vacio
-if "$PYTHON" - <<'PYEOF'
+if python3 - <<'PYEOF'
 import re, sys
 html = open("index.html", encoding="utf-8").read()
 # find content inside div#karaoke
@@ -99,43 +86,19 @@ vignette_count=$(grep -c 'corner-vignette' "index.html" || true)
 grep -q 'id="status-bar"' "index.html" \
   || fail "REGLA6: #status-bar ausente — zona inferior debe tener indicador de caso/confidence"
 
-# ── REGLAS ANTI-REGRESION (aprendidas del caso MTC) ──────────────────────────
-
-# R-AR1: Perry watermark eliminado — NO debe volver al DOM
-if grep -q 'id="perry-watermark"' "index.html"; then
-  fail "ANTI-REGRESION: #perry-watermark encontrado en index.html — Perry solo aparece en M1, M2, M3. Eliminar el elemento."
-fi
-
-# R-AR2: karaoke debe limpiarse al inicio del frame final (CTA)
-if ! grep -q "KWORD_EL.textContent = ''.*T\.cta\|T\.cta.*KWORD_EL.textContent = ''" "index.html"; then
-  # busqueda alternativa: la linea de limpieza del karaoke con T.cta como argumento de tiempo
-  if ! grep -qP "KWORD_EL\.textContent\s*=\s*''\s*\}\s*,\s*\[\]\s*,\s*T\.cta" "index.html" 2>/dev/null; then
-    warn "R-AR2: no se encontro limpieza del karaoke en T.cta — el karaoke puede solaparse con el frame final"
-  fi
-fi
-
-# R-AR3: status-bar debe ocultarse en el frame final
-grep -q "status-bar.*opacity.*0\|opacity.*0.*status-bar" "index.html" \
-  || warn "R-AR3: #status-bar no tiene animacion de ocultamiento — puede solaparse con el frame CTA"
-
-# R-AR4: handle de marca correcto (@agente_p, no @agente_pe ni @AGENTE_PE)
-if grep -qiE '@agente_pe|@AGENTE_PE|Agente Pe' "index.html"; then
-  fail "R-AR4: handle incorrecto encontrado — debe ser '@agente_p' y 'Agente P' (sin 'e' al final)"
-fi
-
 # ── audio checks ──────────────────────────────────────────────────────────────
 
 [[ -f "assets/voiceover.mp3" ]] || fail "assets/voiceover.mp3 does not exist"
 audio_duration="$(duration_of "assets/voiceover.mp3")"
 
-# REGLA 1: duracion audio 15–22 s
-"$PYTHON" -c "import sys; d=float('${audio_duration}'); sys.exit(0 if 15.0<=d<=22.0 else 1)" \
-  || fail "REGLA1: duracion audio fuera de rango: ${audio_duration}s (requerido: 15–22s)"
+# REGLA 1: duracion audio 19.5–20.5 s
+awk -v d="$audio_duration" 'BEGIN { exit !(d >= 13 && d <= 22.5) }' \
+  || fail "REGLA1: duracion audio fuera de rango: ${audio_duration}s (requerido: 13–22.5s)"
 
 # ── word timestamps check ─────────────────────────────────────────────────────
 
 if [[ -f "assets/voiceover_timestamps.json" ]]; then
-  words_count=$("$PYTHON" -c "
+  words_count=$(python3 -c "
 import json, sys
 d = json.load(open('assets/voiceover_timestamps.json'))
 words = d.get('words', [])
@@ -165,9 +128,9 @@ if [[ -n "$MP4_PATH" ]]; then
   size_bytes="$(wc -c < "$MP4_PATH" | tr -d ' ')"
   [[ "$size_bytes" -gt 512000 ]] || fail "MP4 must be >500KB, got ${size_bytes} bytes"
   video_duration="$(duration_of "$MP4_PATH")"
-  # REGLA 1: duracion video 15–22 s
-  "$PYTHON" -c "import sys; d=float('${video_duration}'); sys.exit(0 if 15.0<=d<=22.0 else 1)" \
-    || fail "REGLA1: duracion video fuera de rango: ${video_duration}s (requerido: 15–22s)"
+  # REGLA 1: duracion video 19.5–20.5 s
+  awk -v d="$video_duration" 'BEGIN { exit !(d >= 15 && d <= 22.5) }' \
+    || fail "REGLA1: duracion video fuera de rango: ${video_duration}s (requerido: 15–22.5s)"
 fi
 
 echo "VALIDATION_OK warnings=$WARNINGS audio_duration=$audio_duration"

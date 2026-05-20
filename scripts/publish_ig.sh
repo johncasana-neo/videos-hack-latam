@@ -24,31 +24,25 @@ ${HASHTAGS}
 
 Datos públicos · No es sentencia."
 
-# Step 1: Create media container → Graph API returns upload_url
+# Step 1: Upload MP4 to GitHub Releases to get a public video_url
+: "${GITHUB_TOKEN:?GITHUB_TOKEN required for video upload}"
+echo "INFO: Uploading MP4 to GitHub Releases..." >&2
+VIDEO_URL=$(bash "$(dirname "$0")/upload_github_release.sh" "$MP4_PATH")
+[[ -n "$VIDEO_URL" ]] || { echo "ERROR: GitHub upload returned empty URL" >&2; exit 1; }
+echo "INFO: video_url=$VIDEO_URL" >&2
+
+# Step 2: Create Reels container with public video_url
 echo "INFO: Creating Reels container..." >&2
 container_response=$(curl -sS -X POST "${API}/${IG_USER_ID}/media" \
   -F "media_type=REELS" \
+  -F "video_url=${VIDEO_URL}" \
   -F "share_to_feed=true" \
   -F "access_token=${IG_ACCESS_TOKEN}" \
   -F "caption=${CAPTION}")
 
 container_id=$(echo "$container_response" | jq -r '.id // empty')
-upload_url=$(echo "$container_response"   | jq -r '.upload_url // empty')
 [[ -n "$container_id" ]] || { echo "ERROR: Container creation failed: $container_response" >&2; exit 1; }
 echo "INFO: container_id=$container_id" >&2
-
-# Step 2: Upload binary to upload_url (resumable, single chunk)
-if [[ -n "$upload_url" ]]; then
-  echo "INFO: Uploading video to upload_url (${FILE_SIZE} bytes)..." >&2
-  curl -sS -X POST "$upload_url" \
-    -H "Authorization: OAuth ${IG_ACCESS_TOKEN}" \
-    -H "X-Entity-Length: ${FILE_SIZE}" \
-    -H "X-Entity-Offset: 0" \
-    --data-binary "@${MP4_PATH}" >&2
-  echo "INFO: Upload complete." >&2
-else
-  echo "INFO: No upload_url returned — container will process asynchronously." >&2
-fi
 
 # Step 3: Poll until FINISHED (max 5 min)
 echo "INFO: Waiting for processing..." >&2

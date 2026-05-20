@@ -247,8 +247,9 @@ jobs:
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          chmod +x scripts/publish_ig.sh
+          chmod +x scripts/publish_ig.sh scripts/upload_github_release.sh
           bash scripts/publish_ig.sh "${{ steps.render.outputs.mp4 }}" "${{ steps.insight.outputs.path }}"
 
       - name: Notify Discord

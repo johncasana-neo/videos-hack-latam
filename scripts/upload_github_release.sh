@@ -16,7 +16,7 @@ fi
 
 : "${GITHUB_TOKEN:?GITHUB_TOKEN required (Personal Access Token with repo scope)}"
 
-REPO="johncasana-neo/videos-hack-latam"
+REPO="${GITHUB_REPOSITORY:-johncasana-neo/videos-hack-latam}"
 FILENAME="$(basename "$MP4_PATH")"
 # Extract date from filename like radiografia-2026_05_17.mp4, else use today
 DATE_TAG="$(echo "$FILENAME" | grep -oP '\d{4}_\d{2}_\d{2}' | head -1 || date +%Y_%m_%d)"

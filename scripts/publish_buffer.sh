@@ -26,19 +26,10 @@ ${DESCRIPTION}
 
 ${HASHTAGS}"
 
-PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "")
-[[ -n "$PYTHON" ]] || { echo "ERROR: python not found" >&2; exit 1; }
-
-SCHEDULED_AT="$("$PYTHON" - <<'PYEOF'
-import datetime, zoneinfo, time
-tz = zoneinfo.ZoneInfo("America/Lima")
-now = datetime.datetime.now(tz)
-target = now.replace(hour=19, minute=0, second=0, microsecond=0)
-if target.timestamp() <= time.time():
-    target += datetime.timedelta(days=1)
-print(int(target.timestamp()))
-PYEOF
-)"
+SCHEDULED_AT="$(TZ=America/Lima date -d '19:00 today' +%s)"
+if [[ "$SCHEDULED_AT" -le "$(date +%s)" ]]; then
+  SCHEDULED_AT="$(TZ=America/Lima date -d '19:00 tomorrow' +%s)"
+fi
 
 declare -A PROFILES=(
   ["Instagram"]="$BUFFER_IG_PROFILE_ID"

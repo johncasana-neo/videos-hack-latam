@@ -33,8 +33,6 @@ ELEVENLABS_API_KEY=sk-... bash scripts/generate_audio.sh insights/insight_YYYY_M
 bash scripts/publish_ig.sh output/radiografia-YYYY_MM_DD.mp4 insights/insight_YYYY_MM_DD.json
 ```
 
-Uses the Instagram Graph API resumable upload — the file is uploaded directly to Meta. No public video URL or external hosting required.
-
 ### Validation
 ```bash
 bash scripts/validate_video.sh   # checks placeholders, audio duration, MP4 size
@@ -71,7 +69,7 @@ npx hyperframes render .
 
 7. **Render** (`npx hyperframes render .`) — HyperFrames + Chromium renders HTML+GSAP animations synced to voiceover → `output/radiografia-YYYY_MM_DD.mp4` (1080×1920, 30fps, 18–22s).
 
-8. **Publish** (`scripts/publish_ig.sh`) — Instagram Graph API resumable upload: uploads the MP4 directly to Meta (no external hosting needed), waits for processing, publishes as Reel.
+8. **Publish** (`scripts/publish_buffer.sh`) — Buffer API schedules at 19:00 Lima time to TikTok/Instagram/YouTube.
 
 ### Insight JSON shape (critical fields)
 
@@ -112,10 +110,9 @@ Mandatory rules enforced by skill:
 
 ## Environment Variables
 
-See `.env`. Required:
+See `.env.example`. Required:
 - `ELEVENLABS_API_KEY` (required), `ELEVENLABS_VOICE_ID` (optional, default: `pNInz6obpgDQGcFmaJgB`), `ELEVENLABS_MODEL` (optional, default: `eleven_multilingual_v2`)
 - `IG_ACCESS_TOKEN`, `IG_USER_ID` (Instagram Graph API — long-lived token, expira 60 días)
-- `GITHUB_TOKEN` (Personal Access Token con scope `repo` — usado por `upload_github_release.sh` si se necesita hostear video)
 - `DISCORD_WEBHOOK`
 - `TZ=America/Lima`
 - `ANTHROPIC_API_KEY` (or `OPENROUTER_API_KEY` + `ANTHROPIC_BASE_URL`)
@@ -131,7 +128,7 @@ GitHub Actions schedule: daily `08:00 UTC`. Manual trigger supports `modo_test=t
 | `ElevenLabs returned HTTP 401` | Bad API key | Verify `ELEVENLABS_API_KEY` |
 | `ElevenLabs returned HTTP 422` | Bad voice ID | Check `ELEVENLABS_VOICE_ID` exists in account |
 | `IG_ACCESS_TOKEN required` | Secret not set in GitHub | Add `IG_ACCESS_TOKEN` and `IG_USER_ID` secrets |
-| `Container reached ERROR` | Video specs wrong or upload failed | Verify H264, 9:16, moov atom at front, audio stream present |
+| `Container reached ERROR` | Video specs wrong | Verify H264, 9:16, moov atom at front |
 | Token expiry after 60 days | Long-lived token expired | Run `ig_refresh_token` grant before expiry |
 | `no hay casos suficientes hoy` | No cases above threshold | Expected — pipeline exits 1 gracefully, no action needed |
 | `npm ci` fails locally | No `package-lock.json` | Run `npm install` first |

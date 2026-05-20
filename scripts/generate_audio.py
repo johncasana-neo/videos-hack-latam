@@ -148,8 +148,8 @@ def main():
         sys.exit(1)
 
     word_count = len(voiceover.split())
-    if word_count > 28:
-        print(f"ERROR: voiceover tiene {word_count} palabras (max 28 — REGLA 1). Acortar el guion.", file=sys.stderr)
+    if word_count > 50:
+        print(f"ERROR: voiceover tiene {word_count} palabras (max 50 — REGLA 1). Acortar el guion.", file=sys.stderr)
         sys.exit(1)
 
     payload = json.dumps({
@@ -212,8 +212,8 @@ def main():
 
     audio_duration = float(duration_str)
 
-    if audio_duration > 19.5:
-        print(f"ERROR: audio dura {audio_duration:.2f}s (max 19.5s — REGLA 1). Acortar el guion.", file=sys.stderr)
+    if audio_duration > 25:
+        print(f"ERROR: audio dura {audio_duration:.2f}s (max 25s — REGLA 1). Acortar el guion.", file=sys.stderr)
         sys.exit(1)
 
     sentences = reconstruct_sentence_times(alignment)

@@ -91,9 +91,9 @@ grep -q 'id="status-bar"' "index.html" \
 [[ -f "assets/voiceover.mp3" ]] || fail "assets/voiceover.mp3 does not exist"
 audio_duration="$(duration_of "assets/voiceover.mp3")"
 
-# REGLA 1: duracion audio 19.5–20.5 s
-awk -v d="$audio_duration" 'BEGIN { exit !(d >= 13 && d <= 22.5) }' \
-  || fail "REGLA1: duracion audio fuera de rango: ${audio_duration}s (requerido: 13–22.5s)"
+# REGLA 1: duracion audio max 25s
+awk -v d="$audio_duration" 'BEGIN { exit !(d >= 13 && d <= 25) }' \
+  || fail "REGLA1: duracion audio fuera de rango: ${audio_duration}s (requerido: 13–25s)"
 
 # ── word timestamps check ─────────────────────────────────────────────────────
 
@@ -128,9 +128,9 @@ if [[ -n "$MP4_PATH" ]]; then
   size_bytes="$(wc -c < "$MP4_PATH" | tr -d ' ')"
   [[ "$size_bytes" -gt 512000 ]] || fail "MP4 must be >500KB, got ${size_bytes} bytes"
   video_duration="$(duration_of "$MP4_PATH")"
-  # REGLA 1: duracion video 19.5–20.5 s
-  awk -v d="$video_duration" 'BEGIN { exit !(d >= 15 && d <= 22.5) }' \
-    || fail "REGLA1: duracion video fuera de rango: ${video_duration}s (requerido: 15–22.5s)"
+  # REGLA 1: duracion video max 25s
+  awk -v d="$video_duration" 'BEGIN { exit !(d >= 15 && d <= 25) }' \
+    || fail "REGLA1: duracion video fuera de rango: ${video_duration}s (requerido: 15–25s)"
 fi
 
 echo "VALIDATION_OK warnings=$WARNINGS audio_duration=$audio_duration"

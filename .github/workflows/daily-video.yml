@@ -133,7 +133,7 @@ jobs:
 
           insight_path, duration_str = sys.argv[1], sys.argv[2]
           audio_duration = float(duration_str)
-          dur_ceil = min(math.ceil(audio_duration), 20)
+          dur_ceil = min(math.ceil(audio_duration), 25)
 
           with open(insight_path, encoding="utf-8") as f:
               insight = json.load(f)

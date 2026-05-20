@@ -73,7 +73,7 @@
     .karaoke strong { color:var(--yellow); }
 
     /* Logo */
-    .logo-perry { position:absolute; width:260px; height:260px; object-fit:contain; }
+    .logo-perry { position:absolute; width:176px; height:176px; object-fit:contain; }
 
     /* REGLA 3: hook brutalista intro */
     #scene-intro { background:#000; padding:0 !important; display:flex; align-items:center; justify-content:center; }
@@ -85,10 +85,6 @@
 </head>
 <body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="{{ audio_duration }}" data-width="1080" data-height="1920">
-
-  <!-- ── PERRY: 3 MOMENTOS ──────────────────────────────────────── -->
-  <img src="assets/logo_perry.png" id="perry-intro"  alt="" />
-  <img src="assets/logo_perry.png" id="perry-react"  alt="" />
 
   <!-- ── CAPA 1: AMBIENTE ─────────────────────────────────────── -->
   <canvas id="binary-rain" style="position:absolute;inset:0;pointer-events:none;"></canvas>
@@ -320,6 +316,7 @@
   /* ── CTA ── */
   showScene('#scene-cta', T.cta, T.end);
   tl.from('#scene-cta .cta', { scale: 0.6, opacity: 0, duration: 0.5, ease: 'back.out(2)' }, T.cta + 0.2);
+  tl.from('#scene-cta .logo-perry', { y: 40, opacity: 0, duration: 0.5 }, T.cta + 0.5);
 
   /* ── KARAOKE PALABRA POR PALABRA (REGLA 2) ── */
   const KWORDS = {{ karaoke_words_json }};
@@ -334,38 +331,6 @@
     const nextStart = i + 1 < KWORDS.length ? KWORDS[i + 1].start : w.end;
     tl.call(() => { KWORD_EL.textContent = ''; }, [], nextStart - 0.04);
   });
-
-  /* ── PERRY M1: intro de marca (600ms dentro del hook) ── */
-  tl.to('#perry-intro', { opacity: 1, duration: 0.12, ease: 'power3.out' }, T.intro + 0.5);
-  rgbGlitch('#perry-intro', tl, T.intro + 0.5);
-  tl.set('#perry-intro', { opacity: 0 }, T.intro + 1.1);
-
-  /* ── PERRY M2: reaccion al dato anomalo (revelacion T.facts) ── */
-  tl.fromTo('#perry-react',
-    { opacity: 0, x: 60 },
-    { opacity: 1, x: 0, duration: 0.18, ease: 'back.out(2)' },
-    T.facts + 0.2
-  );
-  tl.to('#perry-react', {
-    keyframes: [
-      { x: -9, duration: 0.06 },
-      { x: 9,  filter: 'drop-shadow(0 0 22px #EF4444)', duration: 0.06 },
-      { x: -6, duration: 0.05 },
-      { x: 6,  duration: 0.05 },
-      { x: 0,  filter: 'drop-shadow(0 0 12px #EF4444)', duration: 0.06 }
-    ]
-  }, T.facts + 0.38);
-  tl.to('#perry-react', { opacity: 0, filter: 'none', duration: 0.14 }, T.facts + 1.0);
-
-  /* ── PERRY M3: CTA — grande centrado, bob finito, quieto en ultimos 0.8s ── */
-  tl.from('#scene-cta .logo-perry', { y: 60, opacity: 0, duration: 0.55, ease: 'back.out(2.2)' }, T.cta + 0.4);
-  tl.call(() => {
-    const bobTween = gsap.to('#scene-cta .logo-perry', { y: -16, duration: 0.9, ease: 'sine.inOut', yoyo: true, repeat: -1 });
-    gsap.delayedCall(T.end - (T.cta + 1.1) - 0.8, () => {
-      bobTween.kill();
-      gsap.to('#scene-cta .logo-perry', { y: 0, duration: 0.3, ease: 'power2.out' });
-    });
-  }, [], T.cta + 1.1);
 
   window.__timelines['main'] = tl;
 </script>

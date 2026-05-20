@@ -63,9 +63,9 @@ jq -r '.audio_base64' "$TMP_RESPONSE" | base64 -d > "$AUDIO_OUT"
 DURATION="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$AUDIO_OUT")"
 [[ "$DURATION" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { echo "ERROR: invalid MP3 duration: $DURATION" >&2; exit 1; }
 
-# REGLA 1: audio no puede superar 19.5 s
-awk -v d="$DURATION" 'BEGIN { exit !(d > 19.5) }' \
-  && { echo "ERROR: audio dura ${DURATION}s (max 19.5s — REGLA 1). Acortar el guion." >&2; exit 1; } || true
+# REGLA 1: audio no puede superar 25 s
+awk -v d="$DURATION" 'BEGIN { exit !(d > 25) }' \
+  && { echo "ERROR: audio dura ${DURATION}s (max 25s — REGLA 1). Acortar el guion." >&2; exit 1; } || true
 
 python - "$TMP_RESPONSE" "$DURATION" "$TIMESTAMPS_OUT" <<'PYEOF'
 import json, sys

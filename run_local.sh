@@ -12,25 +12,6 @@ cd "$(dirname "$0")"
 
 [[ -f .env ]] && { set -a; source .env; set +a; }
 
-# Activate venv so Python works in all subprocesses (fixes Windows Store alias issue)
-if [[ -f "venv/Scripts/activate" ]]; then
-  source venv/Scripts/activate
-elif [[ -f "venv/bin/activate" ]]; then
-  source venv/bin/activate
-fi
-
-# Detect Python - prefer venv by path, reject Windows Store aliases
-if [[ -f "venv/Scripts/python.exe" ]]; then
-  PYTHON="$(pwd)/venv/Scripts/python.exe"
-elif [[ -f "venv/bin/python" ]]; then
-  PYTHON="$(pwd)/venv/bin/python"
-else
-  PYTHON="$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "")"
-  [[ "$PYTHON" == *"WindowsApps"* ]] && PYTHON=""
-fi
-[[ -n "$PYTHON" ]] || { echo "ERROR: Python not found. Run: python -m venv venv && pip install -r requirements.txt" >&2; exit 1; }
-export PYTHON
-
 SKIP_AUDIO=false
 SKIP_PUBLISH=false
 USE_EXAMPLE=false
@@ -59,7 +40,7 @@ if [[ "$USE_EXAMPLE" == "true" ]]; then
   cp insights/insight_example_mtc.json "$INSIGHT_PATH"
   echo "Using example insight."
 elif [[ ! -f "$INSIGHT_PATH" ]]; then
-  "$PYTHON" insights_app/main.py --output "$INSIGHT_PATH" || {
+  python insights_app/main.py --output "$INSIGHT_PATH" || {
     echo "No actionable cases today. Exiting."
     exit 1
   }
@@ -77,7 +58,7 @@ if [[ "$SKIP_AUDIO" == "true" ]]; then
   AUDIO_DURATION=20
 else
   : "${ELEVENLABS_API_KEY:?ELEVENLABS_API_KEY required}"
-  raw_output="$("$PYTHON" scripts/generate_audio.py "$INSIGHT_PATH")"
+  raw_output="$(python scripts/generate_audio.py "$INSIGHT_PATH")"
   echo "$raw_output"
   AUDIO_DURATION="$(echo "$raw_output" | awk -F= '/AUDIO_DURATION_SECONDS=/{print $2}' | tail -1)"
   [[ -n "$AUDIO_DURATION" ]] || { echo "ERROR: could not parse AUDIO_DURATION_SECONDS" >&2; exit 1; }
@@ -87,12 +68,12 @@ echo "Audio duration: ${AUDIO_DURATION}s"
 # ── Step 2b: Patch insight JSON with timestamps ──────────────────────────────
 echo ""
 echo "=== [2b/7] Patch timestamps ==="
-"$PYTHON" - "$INSIGHT_PATH" "$AUDIO_DURATION" <<'PYEOF'
+python - "$INSIGHT_PATH" "$AUDIO_DURATION" <<'PYEOF'
 import json, math, sys
 
 insight_path, duration_str = sys.argv[1], sys.argv[2]
 audio_duration = float(duration_str)
-dur_ceil = math.ceil(audio_duration)
+dur_ceil = min(math.ceil(audio_duration), 25)
 
 with open(insight_path, encoding="utf-8") as f:
     insight = json.load(f)
@@ -124,23 +105,17 @@ PYEOF
 # ── Step 3: index.html via Claude Code skill ─────────────────────────────────
 echo ""
 echo "=== [3/7] Generate index.html ==="
-# Claude Code uses its stored session (~/.claude). No key override needed locally.
-# In CI, set ANTHROPIC_API_KEY secret directly (real Anthropic key, not OpenRouter).
+# Map OpenRouter key to the env var Claude Code actually reads,
+# and fix ANTHROPIC_BASE_URL (Claude Code appends /v1/messages itself).
+ANTHROPIC_AUTH_TOKEN="${OPENROUTER_API_KEY:-}" \
+ANTHROPIC_API_KEY="" \
+ANTHROPIC_BASE_URL="https://openrouter.ai/api" \
   claude -p "/radiografia procesa el insight de hoy con duracion de audio ${AUDIO_DURATION} segundos" \
-  --allowedTools "Bash,Read,Write,Edit,Glob,Skill" \
+  --model "anthropic/claude-sonnet-4.6" \
+  --allowedTools "Bash,Read,Write,Edit,Glob" \
   --output-format json | tee .claude_run_local.json
-CASE_TITLE="$("$PYTHON" -c "
-import json, re, sys
-raw = json.load(open('.claude_run_local.json')).get('result','')
-m = re.search(r'\"case_title\":\s*\"([^\"]+)\"', raw)
-print(m.group(1) if m else 'Radiografia del Gasto Publico')
-" 2>/dev/null || echo "Radiografia del Gasto Publico")"
-ENTITY_NAME="$("$PYTHON" -c "
-import json, re, sys
-raw = json.load(open('.claude_run_local.json')).get('result','')
-m = re.search(r'\"entity_name\":\s*\"([^\"]+)\"', raw)
-print(m.group(1) if m else 'Entidad publica')
-" 2>/dev/null || echo "Entidad publica")"
+CASE_TITLE="$(jq -r '.result.case_title // .case_title // "Radiografia del Gasto Publico"' .claude_run_local.json 2>/dev/null || true)"
+ENTITY_NAME="$(jq -r '.result.entity_name // .entity_name // "Entidad publica"' .claude_run_local.json 2>/dev/null || true)"
 
 # ── Step 4: Validate pre-render ───────────────────────────────────────────────
 echo ""

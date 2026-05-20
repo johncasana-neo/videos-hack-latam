@@ -10,8 +10,10 @@ from typing import Any
 
 from insights_app.detector import RedFlagDetector
 from insights_app.scrapers.contraloria import ContraloriaChecker
+from insights_app.scrapers.neo4j_collector import Neo4jCollector
 from insights_app.scrapers.oece import OeceCollector
 from insights_app.scrapers.seace import SeaceCollector
+from insights_app.scrapers.synthetic_collector import SyntheticCollector
 from insights_app.script_generator import ScriptGenerator
 from insights_app.selector import CaseSelector
 
@@ -28,19 +30,10 @@ def main() -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     print("✓ iniciando recoleccion de fuentes publicas")
-    licitaciones = collect_records()
-    if not licitaciones:
-        print("⚠ no se obtuvieron licitaciones recientes")
-        return 1
-
-    detector = RedFlagDetector()
-    contraloria = ContraloriaChecker()
-    casos: list[dict[str, Any]] = []
-    for lic in licitaciones:
-        flags = detector.analyze(lic, historial=licitaciones, contraloria=contraloria)
-        if flags:
-            casos.append({"licitacion": lic, "red_flags": flags, "confidence": estimate_confidence(lic, flags)})
-
+    casos = detect_casos()
+    if not casos:
+        print("⚠ intentando fallback sintetico con IA")
+        casos = synthetic_casos()
     if not casos:
         print("⚠ no hay casos suficientes hoy")
         return 1
@@ -59,6 +52,16 @@ def main() -> int:
 
 
 def collect_records() -> list[dict[str, Any]]:
+    # 1. Neo4j graph DB (Perry's real procurement data)
+    try:
+        batch = Neo4jCollector().fetch()
+        print(f"✓ Neo4jCollector: {len(batch)} registros")
+        if batch:
+            return normalize_batch(batch)
+    except Exception as exc:
+        print(f"⚠ Neo4jCollector fallo: {exc}")
+
+    # 2. Public scrapers (SEACE / OECE)
     records: list[dict[str, Any]] = []
     for collector in (SeaceCollector(), OeceCollector()):
         try:
@@ -70,7 +73,52 @@ def collect_records() -> list[dict[str, Any]]:
         records.extend(normalize_batch(batch))
         if len(records) >= 50:
             break
-    return records
+    if records:
+        return records
+
+    # 3. LLM synthetic fallback
+    try:
+        batch = SyntheticCollector().fetch()
+        print(f"✓ SyntheticCollector: {len(batch)} registros (generados por IA)")
+        return normalize_batch(batch)
+    except Exception as exc:
+        print(f"⚠ SyntheticCollector fallo: {exc}")
+
+    return []
+
+
+def detect_casos() -> list[dict[str, Any]]:
+    licitaciones = collect_records()
+    if not licitaciones:
+        return []
+    detector = RedFlagDetector()
+    contraloria = ContraloriaChecker()
+    casos: list[dict[str, Any]] = []
+    for lic in licitaciones:
+        flags = detector.analyze(lic, historial=licitaciones, contraloria=contraloria)
+        if flags:
+            casos.append({"licitacion": lic, "red_flags": flags, "confidence": estimate_confidence(lic, flags)})
+    return casos
+
+
+def synthetic_casos() -> list[dict[str, Any]]:
+    try:
+        batch = SyntheticCollector().fetch()
+        print(f"✓ SyntheticCollector: {len(batch)} registros generados por IA")
+    except Exception as exc:
+        print(f"⚠ SyntheticCollector fallo: {exc}")
+        return []
+    licitaciones = normalize_batch(batch)
+    if not licitaciones:
+        return []
+    detector = RedFlagDetector()
+    contraloria = ContraloriaChecker()
+    casos: list[dict[str, Any]] = []
+    for lic in licitaciones:
+        flags = detector.analyze(lic, historial=licitaciones, contraloria=contraloria)
+        if flags:
+            casos.append({"licitacion": lic, "red_flags": flags, "confidence": estimate_confidence(lic, flags)})
+    return casos
 
 
 def normalize_batch(batch: list[dict[str, Any]]) -> list[dict[str, Any]]:

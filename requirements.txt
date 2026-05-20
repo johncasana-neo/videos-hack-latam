@@ -4,3 +4,5 @@ pandas
 python-dateutil
 pydantic
 jinja2
+uvicorn
+neo4j>=5.0

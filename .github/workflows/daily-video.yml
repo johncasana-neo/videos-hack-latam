@@ -66,6 +66,14 @@ jobs:
 
       - name: Generate daily insight
         id: insight
+        env:
+          NEO4J_URI: ${{ secrets.NEO4J_URI }}
+          NEO4J_USERNAME: ${{ secrets.NEO4J_USERNAME }}
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
+          NEO4J_DATABASE: ${{ secrets.NEO4J_DATABASE }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_BASE_URL: "https://openrouter.ai/api/v1"
+          ANTHROPIC_MODEL: "anthropic/claude-haiku-4-5"
         run: |
           today="$(TZ=America/Lima date +%Y_%m_%d)"
           path="insights/insight_${today}.json"

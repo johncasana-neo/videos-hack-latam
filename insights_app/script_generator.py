@@ -141,7 +141,7 @@ class ScriptGenerator:
         if ai_text:
             return ai_text
 
-        # Fallback: template por patron (max 28 palabras)
+        # Fallback: template por patron (max 50 palabras)
         cta = "No es sentencia, son datos publicos. Siguenos: Agente Perry."
         if pattern == "postor_unico_con_proceso_acelerado":
             body = (
@@ -175,9 +175,9 @@ class ScriptGenerator:
             )
         text = f"{body} {cta}"
         word_count = len(text.split())
-        if word_count > 28:
+        if word_count > 50:
             import sys as _sys
-            print(f"WARNING: fallback voiceover tiene {word_count} palabras (max 28)", file=_sys.stderr)
+            print(f"WARNING: fallback voiceover tiene {word_count} palabras (max 50)", file=_sys.stderr)
         return text
 
     @staticmethod
@@ -231,14 +231,17 @@ Reglas ESTRICTAS:
 2. Primera oracion siempre: "Radiografia del gasto publico."
 3. Penultima oracion: menciona que son datos publicos y la fuente.
 4. Ultima oracion siempre: "No es sentencia, son datos publicos. Siguenos: Agente Perry."
-5. MAXIMO 28 PALABRAS EN TOTAL. Contar cuidadosamente. Si superas 28, cortar.
+5. MAXIMO 50 PALABRAS EN TOTAL. Contar cuidadosamente. Si superas 50, cortar.
 6. Tono directo, periodistico, sin adjetivos vacios. Sin palabras de relleno.
 7. No inventes datos que no esten en el contexto.
 8. Solo devuelve el texto del voiceover, sin explicaciones ni comillas."""
 
         use_openrouter = "openrouter" in base_url
         if use_openrouter:
-            endpoint = f"{base_url.rstrip('/')}/chat/completions"
+            base = base_url.rstrip("/")
+            if not base.endswith("/v1"):
+                base = base + "/v1"
+            endpoint = f"{base}/chat/completions"
             headers = {
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",

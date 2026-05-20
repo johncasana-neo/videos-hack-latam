@@ -17,10 +17,8 @@ require_cmd() {
 
 require_cmd curl
 require_cmd jq
+require_cmd python3
 require_cmd ffprobe
-
-PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo "")
-[[ -n "$PYTHON" ]] || { echo "ERROR: python not found" >&2; exit 1; }
 
 [[ -f "$INSIGHT_JSON" ]] || { echo "ERROR: insight not found: $INSIGHT_JSON" >&2; exit 1; }
 [[ -n "${ELEVENLABS_API_KEY:-}" ]] || { echo "ERROR: ELEVENLABS_API_KEY required" >&2; exit 1; }
@@ -29,8 +27,8 @@ VOICEOVER_TEXT="$(jq -r '.script.voiceover_text_full // .voiceover_text_full // 
 [[ -n "$VOICEOVER_TEXT" ]] || { echo "ERROR: script.voiceover_text_full missing" >&2; exit 1; }
 
 WORD_COUNT=$(echo "$VOICEOVER_TEXT" | wc -w | tr -d ' ')
-if [[ "$WORD_COUNT" -gt 50 ]]; then
-  echo "ERROR: voiceover tiene $WORD_COUNT palabras (max 50 — REGLA 1). Acortar el guion." >&2
+if [[ "$WORD_COUNT" -gt 40 ]]; then
+  echo "ERROR: voiceover tiene $WORD_COUNT palabras (max 40 — REGLA 1). Acortar el guion." >&2
   exit 1
 fi
 
@@ -65,11 +63,11 @@ jq -r '.audio_base64' "$TMP_RESPONSE" | base64 -d > "$AUDIO_OUT"
 DURATION="$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$AUDIO_OUT")"
 [[ "$DURATION" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { echo "ERROR: invalid MP3 duration: $DURATION" >&2; exit 1; }
 
-# REGLA 1: audio 15–22 s
-"$PYTHON" -c "import sys; d=float('${DURATION}'); sys.exit(1 if d<15.0 or d>22.0 else 0)" \
-  || { echo "ERROR: audio dura ${DURATION}s (requerido: 15–22s — REGLA 1). Ajustar el guion." >&2; exit 1; }
+# REGLA 1: audio no puede superar 19.5 s
+awk -v d="$DURATION" 'BEGIN { exit !(d > 19.5) }' \
+  && { echo "ERROR: audio dura ${DURATION}s (max 19.5s — REGLA 1). Acortar el guion." >&2; exit 1; } || true
 
-"$PYTHON" - "$TMP_RESPONSE" "$DURATION" "$TIMESTAMPS_OUT" <<'PYEOF'
+python - "$TMP_RESPONSE" "$DURATION" "$TIMESTAMPS_OUT" <<'PYEOF'
 import json, sys
 
 response_file, duration_str, out_file = sys.argv[1], sys.argv[2], sys.argv[3]

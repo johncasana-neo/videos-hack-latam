@@ -25,7 +25,7 @@ env:
 jobs:
   generate-and-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
 
     steps:
       - name: Checkout repository
@@ -46,7 +46,28 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg jq chromium-browser || sudo apt-get install -y ffmpeg jq chromium
+          sudo apt-get install -y ffmpeg jq
+
+      - name: Cache chrome-headless-shell
+        id: cache_chrome
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: chrome-headless-shell-${{ runner.os }}-v1
+
+      - name: Install chrome-headless-shell
+        if: steps.cache_chrome.outputs.cache-hit != 'true'
+        run: npx --yes @puppeteer/browsers install chrome-headless-shell@stable
+
+      - name: Set HYPERFRAMES_BROWSER_PATH
+        run: |
+          shell_bin="$(find ~/.cache/puppeteer -name 'chrome-headless-shell' -type f 2>/dev/null | head -1)"
+          if [ -n "$shell_bin" ]; then
+            echo "HYPERFRAMES_BROWSER_PATH=$shell_bin" >> "$GITHUB_ENV"
+            echo "Using chrome-headless-shell: $shell_bin"
+          else
+            echo "WARNING: chrome-headless-shell not found, falling back to system Chrome"
+          fi
 
       - name: Install Python dependencies
         run: |
@@ -61,8 +82,20 @@ jobs:
             npm install
           fi
 
+      - name: Cache Claude Code CLI
+        id: cache_claude
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm-global
+          key: claude-code-${{ runner.os }}-v1
+
       - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm config set prefix ~/.npm-global
+          echo "$HOME/.npm-global/bin" >> "$GITHUB_PATH"
+          if [ "${{ steps.cache_claude.outputs.cache-hit }}" != "true" ]; then
+            npm install -g @anthropic-ai/claude-code
+          fi
 
       - name: Generate daily insight
         id: insight

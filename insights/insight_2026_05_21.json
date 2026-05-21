@@ -1,0 +1,142 @@
+{
+  "video_id": "radiografia-20260521-055832",
+  "generated_at": "2026-05-21T05:58:32.931060-05:00",
+  "series": {
+    "name": "Radiografia del Gasto Publico",
+    "project": "Agente P : Operaciones Glitch",
+    "episode_number": 3,
+    "episode_label": "03/30"
+  },
+  "case": {
+    "caso_titulo": "Contratos partidos que suman S/ 581,731,894",
+    "patron_detectado": "fraccionamiento_contractual",
+    "confidence": 0.9000000000000001,
+    "severity": 8,
+    "red_flags": [
+      {
+        "tipo": "fraccionamiento",
+        "severity": 8,
+        "evidencia": {
+          "ruc_proveedor": "20519176263",
+          "num_contratos": 2,
+          "monto_total": 780436381.42,
+          "umbral": 400000.0
+        },
+        "patron_id": "fraccionamiento_contractual"
+      }
+    ]
+  },
+  "source": {
+    "entidad_nombre": "SERVICIO DE AGUA POTABLE Y ALCANTARILLADO DE LIMA - SEDAPAL",
+    "entidad_sigla": "SDAPY",
+    "entidad_ruc": "20100152356",
+    "codigo_seace": "ocds-dgv273-seacev3-2022-2383-119:875509-557256:20519176263",
+    "fuente_oficial": "Neo4j/SEACE",
+    "raw_data_points": {
+      "entidad": "SERVICIO DE AGUA POTABLE Y ALCANTARILLADO DE LIMA - SEDAPAL",
+      "ruc_entidad": "20100152356",
+      "objeto": "Contratos fraccionados — Convenio",
+      "postores": [
+        "20519176263"
+      ],
+      "fuente_oficial": "Neo4j/SEACE",
+      "funcionarios": [],
+      "signatarios": [],
+      "region": "LIMA",
+      "codigo_seace": "ocds-dgv273-seacev3-2022-2383-119:875509-557256:20519176263",
+      "monto_adjudicado": 581731894.5,
+      "fecha_convocatoria": "2023-03-27",
+      "fecha_adjudicacion": "2023-03-27",
+      "numero_postores": 2
+    }
+  },
+  "contract": {
+    "objeto_contrato": "Contratos fraccionados — Convenio",
+    "monto_adjudicado": 581731894.5,
+    "numero_postores": 2,
+    "dias_proceso": 1,
+    "promedio_sector": 40
+  },
+  "script": {
+    "voiceover_text_full": "Radiografía del gasto público. SEDAPAL fraccionó 581 millones en contratos idénticos durante un día. Mismo proveedor, mismo objeto, ventanas de 24 horas. Datos públicos de SEACE y Neo4j. No es sentencia, son datos públicos. Síguenos: Agente Perry.",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 2.31,
+        "label": "intro"
+      },
+      {
+        "start": 2.31,
+        "end": 9.66,
+        "label": "facts"
+      },
+      {
+        "start": 9.66,
+        "end": 14.44,
+        "label": "context"
+      },
+      {
+        "start": 14.44,
+        "end": 18.55,
+        "label": "compare"
+      },
+      {
+        "start": 18.55,
+        "end": 21.54,
+        "label": "punch"
+      },
+      {
+        "start": 21.54,
+        "end": 24,
+        "label": "cta"
+      }
+    ],
+    "scene_times": {
+      "t_intro": 0.0,
+      "t_punch": 18.55,
+      "t_cta": 21.54,
+      "t_facts": 2.31,
+      "t_context": 9.66,
+      "t_compare": 14.44
+    }
+  },
+  "global_style": {
+    "background": "#0A1628",
+    "grid": "#1E3A5F",
+    "positive": "#4ADE80",
+    "alert": "#EF4444",
+    "warning": "#FBBF24",
+    "main_text": "#FFFFFF",
+    "cta": "#F472B6"
+  },
+  "audio": {
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "voice_id": "pNInz6obpgDQGcFmaJgB",
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0.4
+  },
+  "subtitles": {
+    "engine": "whisper",
+    "granularity": "word-level",
+    "karaoke": true
+  },
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_seconds": 24
+  },
+  "metadata": {
+    "title": "Contratos partidos que suman S/ 581,731,894",
+    "description": "Analisis de datos publicos de contrataciones: SERVICIO DE AGUA POTABLE Y ALCANTARILLADO DE LIMA - SEDAPAL. Fuente: Neo4j/SEACE.",
+    "hashtags": [
+      "#AgenteP",
+      "#GastoPublico",
+      "#ContratacionesPublicas",
+      "#Peru",
+      "#DatosPublicos"
+    ]
+  }
+}

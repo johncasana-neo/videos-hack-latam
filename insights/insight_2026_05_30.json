@@ -1,0 +1,142 @@
+{
+  "video_id": "radiografia-20260530-045052",
+  "generated_at": "2026-05-30T04:50:52.098280-05:00",
+  "series": {
+    "name": "Radiografia del Gasto Publico",
+    "project": "Agente P : Operaciones Glitch",
+    "episode_number": 4,
+    "episode_label": "04/30"
+  },
+  "case": {
+    "caso_titulo": "Un solo postor por S/ 850,000",
+    "patron_detectado": "postor_unico_con_proceso_acelerado",
+    "confidence": 0.9400000000000002,
+    "severity": 9,
+    "red_flags": [
+      {
+        "tipo": "postor_unico",
+        "severity": 9,
+        "evidencia": {
+          "numero_postores": 1,
+          "dias_proceso": 1,
+          "promedio_sector": 40,
+          "codigo_seace": "LP-2026-00045821"
+        },
+        "patron_id": "postor_unico_con_proceso_acelerado"
+      }
+    ]
+  },
+  "source": {
+    "entidad_nombre": "Ministerio de Transportes y Comunicaciones",
+    "entidad_sigla": "MTC",
+    "entidad_ruc": "20004461974",
+    "codigo_seace": "LP-2026-00045821",
+    "fuente_oficial": "SEACE",
+    "raw_data_points": {
+      "codigo_seace": "LP-2026-00045821",
+      "entidad": "Ministerio de Transportes y Comunicaciones",
+      "ruc_entidad": "20004461974",
+      "objeto": "Suministro e instalación de señalización vial reflectiva para carreteras de la región central",
+      "monto_adjudicado": 850000,
+      "fecha_convocatoria": "2026-05-10",
+      "fecha_adjudicacion": "2026-05-22",
+      "numero_postores": 1,
+      "postores": [
+        "20512847563"
+      ],
+      "fuente_oficial": "SEACE",
+      "funcionarios": [],
+      "signatarios": [],
+      "_synthetic": true
+    }
+  },
+  "contract": {
+    "objeto_contrato": "Suministro e instalación de señalización vial reflectiva para carreteras de la región central",
+    "monto_adjudicado": 850000.0,
+    "numero_postores": 1,
+    "dias_proceso": 1,
+    "promedio_sector": 40
+  },
+  "script": {
+    "voiceover_text_full": "Radiografía del gasto público. El MTC contrató señalización vial por 850 mil soles con un único postor. El proceso duró un día versus 40 días promedio. Los datos provienen de SEACE. No es sentencia, son datos públicos. Síguenos: Agente Perry.",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 2.75,
+        "label": "intro"
+      },
+      {
+        "start": 2.75,
+        "end": 9.82,
+        "label": "facts"
+      },
+      {
+        "start": 9.82,
+        "end": 14.65,
+        "label": "context"
+      },
+      {
+        "start": 14.65,
+        "end": 18.51,
+        "label": "compare"
+      },
+      {
+        "start": 18.51,
+        "end": 21.58,
+        "label": "punch"
+      },
+      {
+        "start": 21.58,
+        "end": 24,
+        "label": "cta"
+      }
+    ],
+    "scene_times": {
+      "t_intro": 0.0,
+      "t_punch": 18.51,
+      "t_cta": 21.58,
+      "t_facts": 2.75,
+      "t_context": 9.82,
+      "t_compare": 14.65
+    }
+  },
+  "global_style": {
+    "background": "#0A1628",
+    "grid": "#1E3A5F",
+    "positive": "#4ADE80",
+    "alert": "#EF4444",
+    "warning": "#FBBF24",
+    "main_text": "#FFFFFF",
+    "cta": "#F472B6"
+  },
+  "audio": {
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "voice_id": "pNInz6obpgDQGcFmaJgB",
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0.4
+  },
+  "subtitles": {
+    "engine": "whisper",
+    "granularity": "word-level",
+    "karaoke": true
+  },
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_seconds": 24
+  },
+  "metadata": {
+    "title": "Un solo postor por S/ 850,000",
+    "description": "Analisis de datos publicos de contrataciones: Ministerio de Transportes y Comunicaciones. Fuente: SEACE.",
+    "hashtags": [
+      "#AgenteP",
+      "#GastoPublico",
+      "#ContratacionesPublicas",
+      "#Peru",
+      "#DatosPublicos"
+    ]
+  }
+}

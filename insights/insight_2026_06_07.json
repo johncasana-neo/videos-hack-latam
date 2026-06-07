@@ -1,0 +1,142 @@
+{
+  "video_id": "radiografia-20260607-052121",
+  "generated_at": "2026-06-07T05:21:21.736958-05:00",
+  "series": {
+    "name": "Radiografia del Gasto Publico",
+    "project": "Agente P : Operaciones Glitch",
+    "episode_number": 5,
+    "episode_label": "05/30"
+  },
+  "case": {
+    "caso_titulo": "Un solo postor por S/ 245,000",
+    "patron_detectado": "postor_unico_con_proceso_acelerado",
+    "confidence": 0.9400000000000002,
+    "severity": 9,
+    "red_flags": [
+      {
+        "tipo": "postor_unico",
+        "severity": 9,
+        "evidencia": {
+          "numero_postores": 1,
+          "dias_proceso": 12,
+          "promedio_sector": 40,
+          "codigo_seace": "2026-000289-SEACE"
+        },
+        "patron_id": "postor_unico_con_proceso_acelerado"
+      }
+    ]
+  },
+  "source": {
+    "entidad_nombre": "Hospital Nacional Edgardo Rebagliati Martins",
+    "entidad_sigla": "HNERM",
+    "entidad_ruc": "20047158727",
+    "codigo_seace": "2026-000289-SEACE",
+    "fuente_oficial": "SEACE",
+    "raw_data_points": {
+      "codigo_seace": "2026-000289-SEACE",
+      "entidad": "Hospital Nacional Edgardo Rebagliati Martins",
+      "ruc_entidad": "20047158727",
+      "objeto": "Adquisición de medicamentos genéricos para farmacia institucional - Lote A antibióticos",
+      "monto_adjudicado": 245000,
+      "fecha_convocatoria": "2026-04-13",
+      "fecha_adjudicacion": "2026-04-25",
+      "numero_postores": 1,
+      "postores": [
+        "20678945123"
+      ],
+      "fuente_oficial": "SEACE",
+      "funcionarios": [],
+      "signatarios": [],
+      "_synthetic": true
+    }
+  },
+  "contract": {
+    "objeto_contrato": "Adquisición de medicamentos genéricos para farmacia institucional - Lote A antibióticos",
+    "monto_adjudicado": 245000.0,
+    "numero_postores": 1,
+    "dias_proceso": 12,
+    "promedio_sector": 40
+  },
+  "script": {
+    "voiceover_text_full": "Radiografía del gasto público. Hospital Rebagliati contrató medicamentos genéricos por 245 mil soles con un solo postor. Proceso acelerado: 12 días versus 40 promedio. Datos de SEACE, fuente pública. No es sentencia, son datos públicos. Síguenos: Agente Perry.",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 2.6,
+        "label": "intro"
+      },
+      {
+        "start": 2.6,
+        "end": 10.44,
+        "label": "facts"
+      },
+      {
+        "start": 10.44,
+        "end": 15.37,
+        "label": "context"
+      },
+      {
+        "start": 15.37,
+        "end": 18.5,
+        "label": "compare"
+      },
+      {
+        "start": 18.5,
+        "end": 21.52,
+        "label": "punch"
+      },
+      {
+        "start": 21.52,
+        "end": 24,
+        "label": "cta"
+      }
+    ],
+    "scene_times": {
+      "t_intro": 0.0,
+      "t_punch": 18.5,
+      "t_cta": 21.52,
+      "t_facts": 2.6,
+      "t_context": 10.44,
+      "t_compare": 15.37
+    }
+  },
+  "global_style": {
+    "background": "#0A1628",
+    "grid": "#1E3A5F",
+    "positive": "#4ADE80",
+    "alert": "#EF4444",
+    "warning": "#FBBF24",
+    "main_text": "#FFFFFF",
+    "cta": "#F472B6"
+  },
+  "audio": {
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "voice_id": "pNInz6obpgDQGcFmaJgB",
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0.4
+  },
+  "subtitles": {
+    "engine": "whisper",
+    "granularity": "word-level",
+    "karaoke": true
+  },
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_seconds": 24
+  },
+  "metadata": {
+    "title": "Un solo postor por S/ 245,000",
+    "description": "Analisis de datos publicos de contrataciones: Hospital Nacional Edgardo Rebagliati Martins. Fuente: SEACE.",
+    "hashtags": [
+      "#AgenteP",
+      "#GastoPublico",
+      "#ContratacionesPublicas",
+      "#Peru",
+      "#DatosPublicos"
+    ]
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "video_id": "radiografia-20260608-072137",
+  "generated_at": "2026-06-08T07:21:37.788266-05:00",
+  "series": {
+    "name": "Radiografia del Gasto Publico",
+    "project": "Agente P : Operaciones Glitch",
+    "episode_number": 6,
+    "episode_label": "06/30"
+  },
+  "case": {
+    "caso_titulo": "El proveedor que vuelve una y otra vez",
+    "patron_detectado": "proveedor_recurrente",
+    "confidence": 0.9000000000000001,
+    "severity": 7,
+    "red_flags": [
+      {
+        "tipo": "proveedor_recurrente",
+        "severity": 7,
+        "evidencia": {
+          "ruc_proveedor": "20458963214",
+          "contratos_12_meses": 6,
+          "monto_total": 7500000.0
+        },
+        "patron_id": "proveedor_recurrente"
+      }
+    ]
+  },
+  "source": {
+    "entidad_nombre": "EsSalud",
+    "entidad_sigla": "E",
+    "entidad_ruc": "20047287637",
+    "codigo_seace": "2026-000289-SEACE-ESSALUD-01",
+    "fuente_oficial": "SEACE",
+    "raw_data_points": {
+      "codigo_seace": "2026-000289-SEACE-ESSALUD-01",
+      "entidad": "EsSalud",
+      "ruc_entidad": "20047287637",
+      "objeto": "Servicios de mantenimiento preventivo y correctivo de equipos médicos de diagnóstico en hospital de Lima",
+      "monto_adjudicado": 1250000,
+      "fecha_convocatoria": "2026-05-02",
+      "fecha_adjudicacion": "2026-05-12",
+      "numero_postores": 3,
+      "postores": [
+        "20458963214",
+        "20512847563",
+        "20478521369"
+      ],
+      "fuente_oficial": "SEACE",
+      "funcionarios": [],
+      "signatarios": [],
+      "_synthetic": true
+    }
+  },
+  "contract": {
+    "objeto_contrato": "Servicios de mantenimiento preventivo y correctivo de equipos médicos de diagnóstico en hospital de Lima",
+    "monto_adjudicado": 1250000.0,
+    "numero_postores": 3,
+    "dias_proceso": 303,
+    "promedio_sector": 40
+  },
+  "script": {
+    "voiceover_text_full": "Radiografía del gasto público. EsSalud contrata mantenimiento de equipos por 1 millón 250 mil soles. El mismo proveedor aparece recurrentemente. Datos públicos del SEACE. No es sentencia, son datos públicos. Síguenos: Agente Perry.",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 2.54,
+        "label": "intro"
+      },
+      {
+        "start": 2.54,
+        "end": 9.5,
+        "label": "facts"
+      },
+      {
+        "start": 9.5,
+        "end": 13.06,
+        "label": "context"
+      },
+      {
+        "start": 13.06,
+        "end": 15.79,
+        "label": "compare"
+      },
+      {
+        "start": 15.79,
+        "end": 18.92,
+        "label": "punch"
+      },
+      {
+        "start": 18.92,
+        "end": 22,
+        "label": "cta"
+      }
+    ],
+    "scene_times": {
+      "t_intro": 0.0,
+      "t_punch": 15.79,
+      "t_cta": 18.92,
+      "t_facts": 2.54,
+      "t_context": 9.5,
+      "t_compare": 13.06
+    }
+  },
+  "global_style": {
+    "background": "#0A1628",
+    "grid": "#1E3A5F",
+    "positive": "#4ADE80",
+    "alert": "#EF4444",
+    "warning": "#FBBF24",
+    "main_text": "#FFFFFF",
+    "cta": "#F472B6"
+  },
+  "audio": {
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "voice_id": "pNInz6obpgDQGcFmaJgB",
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0.4
+  },
+  "subtitles": {
+    "engine": "whisper",
+    "granularity": "word-level",
+    "karaoke": true
+  },
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_seconds": 22
+  },
+  "metadata": {
+    "title": "El proveedor que vuelve una y otra vez",
+    "description": "Analisis de datos publicos de contrataciones: EsSalud. Fuente: SEACE.",
+    "hashtags": [
+      "#AgenteP",
+      "#GastoPublico",
+      "#ContratacionesPublicas",
+      "#Peru",
+      "#DatosPublicos"
+    ]
+  }
+}

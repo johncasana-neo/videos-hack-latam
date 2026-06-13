@@ -1,0 +1,143 @@
+{
+  "video_id": "radiografia-20260613-052129",
+  "generated_at": "2026-06-13T05:21:29.527333-05:00",
+  "series": {
+    "name": "Radiografia del Gasto Publico",
+    "project": "Agente P : Operaciones Glitch",
+    "episode_number": 7,
+    "episode_label": "07/30"
+  },
+  "case": {
+    "caso_titulo": "Contratos partidos que suman S/ 620,000",
+    "patron_detectado": "fraccionamiento_contractual",
+    "confidence": 0.9000000000000001,
+    "severity": 8,
+    "red_flags": [
+      {
+        "tipo": "fraccionamiento",
+        "severity": 8,
+        "evidencia": {
+          "ruc_proveedor": "20445678901",
+          "num_contratos": 2,
+          "monto_total": 1240000.0,
+          "umbral": 400000.0
+        },
+        "patron_id": "fraccionamiento_contractual"
+      }
+    ]
+  },
+  "source": {
+    "entidad_nombre": "Essalud",
+    "entidad_sigla": "E",
+    "entidad_ruc": "20047287981",
+    "codigo_seace": "2026-000089234",
+    "fuente_oficial": "SEACE",
+    "raw_data_points": {
+      "codigo_seace": "2026-000089234",
+      "entidad": "Essalud",
+      "ruc_entidad": "20047287981",
+      "objeto": "Adquisición de equipos médicos de diagnóstico para centros de salud de Lima Metropolitana - Lote A",
+      "monto_adjudicado": 620000,
+      "fecha_convocatoria": "2026-04-20",
+      "fecha_adjudicacion": "2026-05-18",
+      "numero_postores": 2,
+      "postores": [
+        "20445678901",
+        "20445678901"
+      ],
+      "fuente_oficial": "SEACE",
+      "funcionarios": [],
+      "signatarios": [],
+      "_synthetic": true
+    }
+  },
+  "contract": {
+    "objeto_contrato": "Adquisición de equipos médicos de diagnóstico para centros de salud de Lima Metropolitana - Lote A",
+    "monto_adjudicado": 620000.0,
+    "numero_postores": 2,
+    "dias_proceso": 28,
+    "promedio_sector": 40
+  },
+  "script": {
+    "voiceover_text_full": "Radiografía del gasto público. Essalud fraccionó 620 mil soles en equipos médicos. Contratos idénticos cada 28 días, mismo proveedor. Datos de SEACE. No es sentencia, son datos públicos. Síguenos: Agente Perry.",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 2.65,
+        "label": "intro"
+      },
+      {
+        "start": 2.65,
+        "end": 7.73,
+        "label": "facts"
+      },
+      {
+        "start": 7.73,
+        "end": 12.45,
+        "label": "context"
+      },
+      {
+        "start": 12.45,
+        "end": 14.31,
+        "label": "compare"
+      },
+      {
+        "start": 14.31,
+        "end": 17.74,
+        "label": "punch"
+      },
+      {
+        "start": 17.74,
+        "end": 20,
+        "label": "cta"
+      }
+    ],
+    "scene_times": {
+      "t_intro": 0.0,
+      "t_punch": 14.31,
+      "t_cta": 17.74,
+      "t_facts": 2.65,
+      "t_context": 7.73,
+      "t_compare": 12.45
+    }
+  },
+  "global_style": {
+    "background": "#0A1628",
+    "grid": "#1E3A5F",
+    "positive": "#4ADE80",
+    "alert": "#EF4444",
+    "warning": "#FBBF24",
+    "main_text": "#FFFFFF",
+    "cta": "#F472B6"
+  },
+  "audio": {
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "voice_id": "pNInz6obpgDQGcFmaJgB",
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0.4
+  },
+  "subtitles": {
+    "engine": "whisper",
+    "granularity": "word-level",
+    "karaoke": true
+  },
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_seconds": 20
+  },
+  "metadata": {
+    "title": "Contratos partidos que suman S/ 620,000",
+    "description": "Analisis de datos publicos de contrataciones: Essalud. Fuente: SEACE.",
+    "hashtags": [
+      "#AgenteP",
+      "#GastoPublico",
+      "#ContratacionesPublicas",
+      "#Peru",
+      "#DatosPublicos"
+    ]
+  }
+}
